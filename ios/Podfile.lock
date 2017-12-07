@@ -1,0 +1,28 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_webview_plugin (0.0.1):
+    - Flutter
+  - shared_preferences (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `/Users/jeffward/Projects/flutter/bin/cache/artifacts/engine/ios`)
+  - flutter_webview_plugin (from `/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.0.9+1/ios`)
+  - shared_preferences (from `/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.2.5/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: "/Users/jeffward/Projects/flutter/bin/cache/artifacts/engine/ios"
+  flutter_webview_plugin:
+    :path: "/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.0.9+1/ios"
+  shared_preferences:
+    :path: "/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.2.5/ios"
+
+SPEC CHECKSUMS:
+  Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
+  flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
+  shared_preferences: 1feebfa37bb57264736e16865e7ffae7fc99b523
+
+PODFILE CHECKSUM: 351e02e34b831289961ec3558a535cbd2c4965d2
+
+COCOAPODS: 1.2.1

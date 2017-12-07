@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'dart:async';
+
+import 'mastodon/mastodon.dart';
+
 void main() {
   runApp(new MyApp());
 }
@@ -47,7 +51,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
+  Future _incrementCounter() async {
+    var mastodonClient = new MastodonApi("mastodon.gamedev.place");
+    await mastodonClient.register();
+    await mastodonClient.login();
+
     setState(() {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
