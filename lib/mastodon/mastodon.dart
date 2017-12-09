@@ -14,6 +14,38 @@ final String clientName = "flutterdon";
 final int redirectPort = 8553;
 final String redirectUrl = "http://localhost:${redirectPort}/code";
 
+const MethodChannel _channel =
+    const MethodChannel('plugins.flutter.io/webmodal');
+
+class WebViewModal {
+  String _urlString;
+  
+  WebViewModal(String urlString) {
+    this._urlString = urlString;
+    final Uri url = Uri.parse(urlString.trimLeft());
+    final bool isWebURL = url.scheme == 'http' || url.scheme == 'https';
+    if (!isWebURL) {
+      throw new PlatformException(
+          code: 'NOT_A_WEB_SCHEME',
+          message: 'To use webview or safariVC, you need to pass'
+              'in a web URL. This $urlString is not a web URL.');
+    }
+  }
+
+  Future present() async {
+    return _channel.invokeMethod(
+      'present',
+      <String, Object>{
+        'url': _urlString
+      },
+    );
+  }
+
+  void close() {
+    _channel.invokeMethod('close', {});
+  }
+}
+
 class MastodonApi {
   String _instanceUrl;
   Client _httpClient;
@@ -45,41 +77,27 @@ class MastodonApi {
     }
   }
 
-  Future<Stream<String>> _loginServer() async {
-    final StreamController<String> onCode = new StreamController();
+  Future login() async {
+    final String url = "https://${_instanceUrl}/oauth/authorize/?scope=read%20write%20follow&response_type=code&redirect_uri=${redirectUrl}&client_id=${_clientInfo.clientId}";
+    print("Going to: ${url}");
+    final modal = new WebViewModal(url);
+    
+    String code;
     HttpServer server = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, redirectPort);
     server.listen((HttpRequest request) async {
-      const html = """
-        <html>
-          <body>
-            <h1>You can now close this window</h1>
-          </body>
-        </html>
-      """;
-      final String code = request.uri.queryParameters["code"];
+      const html = "<html></html>";
+      code = request.uri.queryParameters["code"];
       request.response
         ..statusCode = 200
         ..headers.set("Content-Type", ContentType.HTML.mimeType)
         ..write(html);
       await request.response.close();
-      await server.close(force: true);
-      onCode.add(code);
-      await onCode.close();
+      modal.close();
     });
 
-    return onCode.stream;
-  }
-
-  Future login() async {
-    Stream<String> onCode = await _loginServer();
-
-    final String url = "https://${_instanceUrl}/oauth/authorize/?scope=read%20write%20follow&response_type=code&redirect_uri=${redirectUrl}&client_id=${_clientInfo.clientId}";
-    print("Going to: ${url}");
-    final FlutterWebviewPlugin webviewPlugin = new FlutterWebviewPlugin();
-    webviewPlugin.launch(url, fullScreen: true);
-    final code = await onCode.first;
+    await modal.present();
+    await server.close(force: true);
     print(code);
-    webviewPlugin.close();
   }
 
   Future<RegisterResponse> _register_internal() async {
