@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 
 part 'models.dart';
 
