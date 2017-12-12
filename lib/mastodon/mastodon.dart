@@ -8,40 +8,33 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 part 'models.dart';
+part 'web_view_modal.dart';
 
 final String clientName = "flutterdon";
 final int redirectPort = 8553;
-final String redirectUrl = "http://localhost:${redirectPort}/code";
+final String redirectUrl = "http://localhost:$redirectPort/code";
 
-const MethodChannel _channel =
-    const MethodChannel('plugins.flutter.io/webmodal');
+class MastodonInstanceManager {
+  static const String _InstanceListKey = "flutterdon:instance_list";
 
-class WebViewModal {
-  String _urlString;
-  
-  WebViewModal(String urlString) {
-    this._urlString = urlString;
-    final Uri url = Uri.parse(urlString.trimLeft());
-    final bool isWebURL = url.scheme == 'http' || url.scheme == 'https';
-    if (!isWebURL) {
-      throw new PlatformException(
-          code: 'NOT_A_WEB_SCHEME',
-          message: 'To use webview or safariVC, you need to pass'
-              'in a web URL. This $urlString is not a web URL.');
+  Future<List<String>> getRegisteredInstances() async {
+    final sp = await SharedPreferences.getInstance();
+    return sp.getStringList(_InstanceListKey);
+  }
+
+  Future addAuthorizedInstance(ClientInfo info) async {
+    final sp = await SharedPreferences.getInstance();
+    var currentList = sp.getStringList(_InstanceListKey);
+    if(currentList == null) {
+      currentList = new List<String>();
+    } else {
+      currentList = new List<String>.from(currentList);  
     }
-  }
-
-  Future present() async {
-    return _channel.invokeMethod(
-      'present',
-      <String, Object>{
-        'url': _urlString
-      },
-    );
-  }
-
-  void close() {
-    _channel.invokeMethod('close', {});
+    if(!currentList.contains(info.instanceName)) {
+      currentList.add(info.instanceName);
+      sp.setStringList(_InstanceListKey, currentList);
+      await sp.commit();
+    }
   }
 }
 
@@ -49,37 +42,66 @@ class MastodonApi {
   String _instanceUrl;
   Client _httpClient;
   ClientInfo _clientInfo;
+  Account _account;
 
   MastodonApi(this._instanceUrl) {
       _httpClient = createHttpClient();
-
-  }
-
-  Future register() async {
-    final sp = await SharedPreferences.getInstance();
-    var clientInfo = ClientInfo.fromSharedPreferences(sp, _instanceUrl); 
-    //var clientInfo = null;
-    if(clientInfo != null) {
-      print("Found saved client info!");
-    } else {
-      final response = await _register_internal();
-      if(response != null) {
-        clientInfo = new ClientInfo(_instanceUrl, response.clientId, response.clientSecret);
-      
-        await clientInfo.saveToSharedPreferences(sp);
-      }
-    }
-
-    if(clientInfo != null) {
-      _clientInfo = clientInfo; 
-      print("Registerd app okay. Ready to login!");
-    }
   }
 
   Future login() async {
-    final String url = "https://${_instanceUrl}/oauth/authorize/?scope=read%20write%20follow&response_type=code&redirect_uri=${redirectUrl}&client_id=${_clientInfo.clientId}";
-    print("Going to: ${url}");
-    final modal = new WebViewModal(url);
+    final sp = await SharedPreferences.getInstance();
+    _clientInfo = ClientInfo.fromSharedPreferences(sp, _instanceUrl); 
+    if(_clientInfo == null) {
+      _clientInfo = await _registerApp(sp);
+    }
+
+    if(_clientInfo.accessToken == null) {
+      final refreshToken = await _authorizeApp();
+      _clientInfo.accessToken = await _getAccessToken(refreshToken);
+      await _clientInfo.saveToSharedPreferences(sp);
+    }
+
+    _account = await _verifyCredentials();
+    new MastodonInstanceManager().addAuthorizedInstance(_clientInfo);
+  }
+
+  Future logout() async {
+    final sp = await SharedPreferences.getInstance();
+    _clientInfo.accessToken = null;
+    await _clientInfo.saveToSharedPreferences(sp);
+  }
+
+  Future<ClientInfo> _registerApp(SharedPreferences sp) async {
+    final url = "https://$_instanceUrl/api/v1/apps";
+    final body = {
+      "client_name": clientName,
+      "redirect_uris": redirectUrl,
+      "scopes": "read write follow"
+    };
+
+    var response = await _httpClient.post(url, body: body);
+    if (response.statusCode < 200 && response.statusCode >= 300) {
+      throw new Exception("Error registering app with mastodon instance: ");
+    }
+  
+    final jsonResponse = JSON.decode(response.body);
+    final regResponse = new RegisterResponse.fromJson(jsonResponse);
+
+    var clientInfo = new ClientInfo(_instanceUrl, regResponse.clientId, regResponse.clientSecret);
+    await clientInfo.saveToSharedPreferences(sp);
+
+    return clientInfo;
+  }
+
+  Future _authorizeApp() async {
+    final uri = new Uri(scheme: "https", host: _instanceUrl, path: "oauth/authorize", queryParameters:  {
+      "scope": "read write follow",
+      "response_type": "code",
+      "redirect_uri": redirectUrl,
+      "client_id": _clientInfo.clientId
+    });
+    print("Going to: $uri");
+    final modal = new WebViewModal(uri.toString());
     
     String code;
     HttpServer server = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, redirectPort);
@@ -96,26 +118,49 @@ class MastodonApi {
 
     await modal.present();
     await server.close(force: true);
-    print(code);
+
+    if(code == null) {
+      throw new Exception("Could not authorize app: ");
+    }
+    
+    return code;
   }
 
-  Future<RegisterResponse> _register_internal() async {
-    final url = "https://${_instanceUrl}/api/v1/apps";
-    final body = {
-      "client_name": clientName,
-      "redirect_uris": redirectUrl,
-      "scopes": "read write follow"
-    };
-
-    var response = await _httpClient.post(url, body: body);
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      final jsonResponse = JSON.decode(response.body);
-      final regResponse = new RegisterResponse.fromJson(jsonResponse);
-
-      return regResponse;  
+  Future<String> _getAccessToken(String refreshToken) async {
+    final uri = new Uri(scheme: "https", host: _instanceUrl, path: "/oauth/token", queryParameters: {
+      "client_id": _clientInfo.clientId,
+      "client_secret": _clientInfo.clientSecret,
+      "grant_type": "authorization_code",
+      "code": refreshToken,
+      "redirect_uri": redirectUrl
+    });
+    
+    var response = await _httpClient.post(uri);
+    if(response.statusCode < 200 || response.statusCode >= 300) {
+      throw new Exception("Error getting access token: ");
     }
 
-    return null;
+    final jsonResponse = JSON.decode(response.body);
+    final code = jsonResponse["access_token"];
+    
+    return code;
   }
 
+  Future<Account> _verifyCredentials() async {
+    final response = await _performRequest("/api/v1/accounts/verify_credentials");
+
+    return new Account.fromJson(JSON.decode(response.body));
+  }
+
+  Future<Response> _performRequest(String path) async {
+    final uri = new Uri(scheme: "https", host: _instanceUrl, path: path);
+    final response = await _httpClient.get(uri, headers: {
+      "Authorization": "Bearer ${_clientInfo.accessToken}"
+    });
+    if(response.statusCode < 200 || response.statusCode >= 300) {
+      throw new Exception("Couldn't verify credentials: ");
+    }
+    
+    return response;
+  }
 }
