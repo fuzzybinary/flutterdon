@@ -23,7 +23,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future _checkExistingInstance() async {
-    final mim = new MastodonInstanceManager();
+    final mim = MastodonInstanceManager.instance();
     final instanceList = await mim.getRegisteredInstances();
     if(instanceList == null) {
       _gotoLogin();

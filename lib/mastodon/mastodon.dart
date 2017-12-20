@@ -17,6 +17,23 @@ final String redirectUrl = "http://localhost:$redirectPort/code";
 class MastodonInstanceManager {
   static const String _InstanceListKey = "flutterdon:instance_list";
 
+  // TODO: Don't like holding the current API here but I need to look into
+  // how do to it better.
+  MastodonApi currentApi; 
+
+  // TODO: Investigate better ways to pass the current MastodonAPI to
+  // various pages / switching instances.
+  static MastodonInstanceManager _instance;
+  static MastodonInstanceManager instance() {
+    if(_instance == null) {
+      _instance = new MastodonInstanceManager._();
+    }
+
+    return _instance;
+  }
+
+  MastodonInstanceManager._();
+
   Future<List<String>> getRegisteredInstances() async {
     final sp = await SharedPreferences.getInstance();
     return sp.getStringList(_InstanceListKey);
@@ -62,13 +79,24 @@ class MastodonApi {
     }
 
     _account = await _verifyCredentials();
-    new MastodonInstanceManager().addAuthorizedInstance(_clientInfo);
+    MastodonInstanceManager.instance().addAuthorizedInstance(_clientInfo);
+    MastodonInstanceManager.instance().currentApi = this;
   }
 
   Future logout() async {
     final sp = await SharedPreferences.getInstance();
     _clientInfo.accessToken = null;
     await _clientInfo.saveToSharedPreferences(sp);
+  }
+
+  Future<List<Status>> getTimeline() async {
+    final response = await _performRequest("/api/v1/timelines/home");
+    final statusListJson = JSON.decode(response.body);
+    final statusList = new List<Status>();
+    for(var statusJson in statusListJson) {
+      statusList.add(new Status.fromJson(statusJson));
+    }
+    return statusList;
   }
 
   Future<ClientInfo> _registerApp(SharedPreferences sp) async {

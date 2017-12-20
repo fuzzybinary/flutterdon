@@ -52,6 +52,53 @@ class Account {
   }
 }
 
+class Status {
+  String id;
+  String uri;
+  String url;
+  Account account;
+  String inReplyToId;
+  String inReplyToAccountId;
+  Status reblog;
+  String content;
+  String createdAt;
+  //List<Emoji> emojis;
+  int reblogsCount;
+  int favouritesCount;
+  bool reblogged;
+  bool favourited;
+  bool muted;
+  bool sensitive;
+  String spoilerText;
+  String visibility;
+  //List<Attachment> attachments;
+  //List<Mention> mentions;
+  //List<Tag> tags;
+  //Application application;
+  String language;
+
+  Status.fromJson(Map<String, dynamic> json) {
+    id = json["id"];
+    uri = json["uri"];
+    url = json["url"];
+    account = new Account.fromJson(json["account"]);
+    inReplyToId = json["in_reply_to"];
+    inReplyToAccountId = json["in_reply_to_account_id"];
+    reblog = json["reblog"] != null ?  new Status.fromJson(json["reblog"]) : null;
+    content = json["content"];
+    createdAt = json["createdAt"];
+    reblogsCount = json["reblogsCount"];
+    favouritesCount = json["favouritesCount"];
+    reblogged = json["reblogged"];
+    favourited = json["favourited"];
+    muted = json["muted"];
+    sensitive = json["sensitive"];
+    spoilerText = json["spoiler_text"];
+    visibility = json["visibility"];
+    language = json["language"];
+  }
+}
+
 class ClientInfo {
   String instanceName;
   String clientId;

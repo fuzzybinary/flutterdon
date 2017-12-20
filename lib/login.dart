@@ -22,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
     _login();
     
     setState(() {
+      _exceptionMessage = "";
       _loading = true;
     });
   }
