@@ -7,7 +7,7 @@ import 'mastodon/mastodon.dart';
 import 'widgets/toot_cell_widget.dart';
 
 class TimelinePage extends StatefulWidget {
-  TimelinePage({Key key, this.title}) : super(key: key);
+  const TimelinePage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -26,14 +26,14 @@ class _TimelinePageState extends State<TimelinePage> {
   }
   
   void _logout() {
-    Navigator.of(context).pushReplacementNamed("/login");
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
-  Future _loadTimeline() async {
+  Future<Null> _loadTimeline() async {
     final mim = MastodonInstanceManager.instance();
     _statusList = await mim.currentApi.getTimeline();
     
-    setState(() => {
+    setState(() {
       
     });
   }
@@ -45,7 +45,7 @@ class _TimelinePageState extends State<TimelinePage> {
         title: new Text(widget.title),
         actions: <Widget>[
           new FlatButton(
-            child: new Text("Logout"),
+            child: const Text('Logout'),
             textColor: Colors.white,
             onPressed: _logout,
           )
@@ -55,10 +55,10 @@ class _TimelinePageState extends State<TimelinePage> {
     );
   }
 
-  _buildBody() {
+  Widget _buildBody() {
     if(_statusList == null ) {
       return new Center(
-        child: new CircularProgressIndicator(),
+        child: const CircularProgressIndicator(),
       );
     }
     return new ListView.builder(

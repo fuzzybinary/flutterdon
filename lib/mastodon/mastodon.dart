@@ -10,29 +10,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 part 'models.dart';
 part 'web_view_modal.dart';
 
-final String clientName = "flutterdon";
+final String clientName = 'flutterdon';
 final int redirectPort = 8553;
-final String redirectUrl = "http://localhost:$redirectPort/code";
+final String redirectUrl = 'http://localhost:$redirectPort/code';
 
 class MastodonInstanceManager {
-  static const String _InstanceListKey = "flutterdon:instance_list";
+  static const String _InstanceListKey = 'flutterdon:instance_list';
 
   // TODO: Don't like holding the current API here but I need to look into
   // how do to it better.
-  MastodonApi currentApi; 
+  MastodonApi currentApi;
+
+  MastodonInstanceManager._(); 
 
   // TODO: Investigate better ways to pass the current MastodonAPI to
   // various pages / switching instances.
   static MastodonInstanceManager _instance;
   static MastodonInstanceManager instance() {
-    if(_instance == null) {
-      _instance = new MastodonInstanceManager._();
-    }
-
+    _instance ??= new MastodonInstanceManager._();
     return _instance;
   }
-
-  MastodonInstanceManager._();
 
   Future<List<String>> getRegisteredInstances() async {
     final sp = await SharedPreferences.getInstance();
@@ -43,7 +40,7 @@ class MastodonInstanceManager {
     final sp = await SharedPreferences.getInstance();
     var currentList = sp.getStringList(_InstanceListKey);
     if(currentList == null) {
-      currentList = new List<String>();
+      currentList = [];
     } else {
       currentList = new List<String>.from(currentList);  
     }
@@ -68,10 +65,8 @@ class MastodonApi {
   Future login() async {
     final sp = await SharedPreferences.getInstance();
     _clientInfo = ClientInfo.fromSharedPreferences(sp, _instanceUrl); 
-    if(_clientInfo == null) {
-      _clientInfo = await _registerApp(sp);
-    }
-
+    _clientInfo ??= await _registerApp(sp);
+    
     if(_clientInfo.accessToken == null) {
       final refreshToken = await _authorizeApp();
       _clientInfo.accessToken = await _getAccessToken(refreshToken);
@@ -90,9 +85,9 @@ class MastodonApi {
   }
 
   Future<List<Status>> getTimeline() async {
-    final response = await _performRequest("/api/v1/timelines/home");
-    final statusListJson = JSON.decode(response.body);
-    final statusList = new List<Status>();
+    final response = await _performRequest('/api/v1/timelines/home');
+    final List<Map<String, Object>> statusListJson = JSON.decode(response.body);
+    final statusList = <Status>[];
     for(var statusJson in statusListJson) {
       statusList.add(new Status.fromJson(statusJson));
     }
@@ -100,45 +95,48 @@ class MastodonApi {
   }
 
   Future<ClientInfo> _registerApp(SharedPreferences sp) async {
-    final url = "https://$_instanceUrl/api/v1/apps";
+    final url = 'https://$_instanceUrl/api/v1/apps';
     final body = {
-      "client_name": clientName,
-      "redirect_uris": redirectUrl,
-      "scopes": "read write follow"
+      'client_name': clientName,
+      'redirect_uris': redirectUrl,
+      'scopes': 'read write follow'
     };
 
-    var response = await _httpClient.post(url, body: body);
+    final response = await _httpClient.post(url, body: body);
     if (response.statusCode < 200 && response.statusCode >= 300) {
-      throw new Exception("Error registering app with mastodon instance: ");
+      throw new Exception('Error registering app with mastodon instance: ');
     }
   
-    final jsonResponse = JSON.decode(response.body);
+    final Map<String, Object> jsonResponse = JSON.decode(response.body);
     final regResponse = new RegisterResponse.fromJson(jsonResponse);
 
-    var clientInfo = new ClientInfo(_instanceUrl, regResponse.clientId, regResponse.clientSecret);
+    final clientInfo = new ClientInfo(_instanceUrl, regResponse.clientId, regResponse.clientSecret);
     await clientInfo.saveToSharedPreferences(sp);
 
     return clientInfo;
   }
 
-  Future _authorizeApp() async {
-    final uri = new Uri(scheme: "https", host: _instanceUrl, path: "oauth/authorize", queryParameters:  {
-      "scope": "read write follow",
-      "response_type": "code",
-      "redirect_uri": redirectUrl,
-      "client_id": _clientInfo.clientId
+  Future<String> _authorizeApp() async {
+    final uri = new Uri(scheme: 'https', 
+      host: _instanceUrl, 
+      path: 'oauth/authorize', 
+      queryParameters:  <String, Object>{
+        'scope': 'read write follow',
+        'response_type': 'code',
+        'redirect_uri': redirectUrl,
+        'client_id': _clientInfo.clientId
     });
-    print("Going to: $uri");
+    print('Going to: $uri');
     final modal = new WebViewModal(uri.toString());
     
     String code;
-    HttpServer server = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, redirectPort);
+    final server = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, redirectPort);
     server.listen((HttpRequest request) async {
-      const html = "<html></html>";
-      code = request.uri.queryParameters["code"];
+      const html = '<html></html>';
+      code = request.uri.queryParameters['code'];
       request.response
         ..statusCode = 200
-        ..headers.set("Content-Type", ContentType.HTML.mimeType)
+        ..headers.set('Content-Type', ContentType.HTML.mimeType)
         ..write(html);
       await request.response.close();
       modal.close();
@@ -148,42 +146,46 @@ class MastodonApi {
     await server.close(force: true);
 
     if(code == null) {
-      throw new Exception("Could not authorize app: ");
+      throw new Exception('Could not authorize app: ');
     }
     
     return code;
   }
 
   Future<String> _getAccessToken(String refreshToken) async {
-    final uri = new Uri(scheme: "https", host: _instanceUrl, path: "/oauth/token", queryParameters: {
-      "client_id": _clientInfo.clientId,
-      "client_secret": _clientInfo.clientSecret,
-      "grant_type": "authorization_code",
-      "code": refreshToken,
-      "redirect_uri": redirectUrl
-    });
+    final uri = new Uri(scheme: 'https', 
+      host: _instanceUrl, 
+      path: '/oauth/token', 
+      queryParameters: <String, Object>{
+        'client_id': _clientInfo.clientId,
+        'client_secret': _clientInfo.clientSecret,
+        'grant_type': 'authorization_code',
+        'code': refreshToken,
+        'redirect_uri': redirectUrl
+      }
+    );
     
-    var response = await _httpClient.post(uri);
+    final response = await _httpClient.post(uri);
     if(response.statusCode < 200 || response.statusCode >= 300) {
-      throw new Exception("Error getting access token: ");
+      throw new Exception('Error getting access token: ');
     }
 
-    final jsonResponse = JSON.decode(response.body);
-    final code = jsonResponse["access_token"];
+    final Map<String, Object> jsonResponse = JSON.decode(response.body);
+    final String code = jsonResponse['access_token'];
     
     return code;
   }
 
   Future<Account> _verifyCredentials() async {
-    final response = await _performRequest("/api/v1/accounts/verify_credentials");
+    final response = await _performRequest('/api/v1/accounts/verify_credentials');
 
     return new Account.fromJson(JSON.decode(response.body));
   }
 
   Future<Response> _performRequest(String path) async {
-    final uri = new Uri(scheme: "https", host: _instanceUrl, path: path);
+    final uri = new Uri(scheme: 'https', host: _instanceUrl, path: path);
     final response = await _httpClient.get(uri, headers: {
-      "Authorization": "Bearer ${_clientInfo.accessToken}"
+      'Authorization': 'Bearer ${_clientInfo.accessToken}'
     });
     if(response.statusCode < 200 || response.statusCode >= 300) {
       throw new Exception("Couldn't verify credentials: ");

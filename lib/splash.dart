@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
 
 class SplashPage extends StatefulWidget {
-  SplashPage({Key key, this.title}) : super(key: key);
+  const SplashPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
@@ -41,11 +41,11 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _gotoLogin() {
-    Navigator.of(context).pushReplacementNamed("/login");
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   void _gotoTimeline() {
-    Navigator.of(context).pushReplacementNamed("/timeline");
+    Navigator.of(context).pushReplacementNamed('/timeline');
   }
 
   @override
@@ -55,7 +55,7 @@ class _SplashPageState extends State<SplashPage> {
         title: new Text(widget.title),
       ),
       body: new Center(
-        child:  new CircularProgressIndicator() 
+        child:  const CircularProgressIndicator() 
       )
     );
   }

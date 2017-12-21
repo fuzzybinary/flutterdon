@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../mastodon/mastodon.dart';
 
 class TootCell extends StatefulWidget {
-  TootCell({Key key, this.status}) : super(key: key);
-
   final Status status;
+
+  const TootCell({Key key, this.status}) : super(key: key);
 
   @override
   _TootCellState createState() => new _TootCellState();

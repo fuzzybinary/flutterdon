@@ -7,7 +7,7 @@ class WebViewModal {
   String _urlString;
   
   WebViewModal(String urlString) {
-    this._urlString = urlString;
+    _urlString = urlString;
     final Uri url = Uri.parse(urlString.trimLeft());
     final bool isWebURL = url.scheme == 'http' || url.scheme == 'https';
     if (!isWebURL) {
@@ -28,6 +28,6 @@ class WebViewModal {
   }
 
   void close() {
-    _channel.invokeMethod('close', {});
+    _channel.invokeMethod('close',  <String, Object>{});
   }
 }

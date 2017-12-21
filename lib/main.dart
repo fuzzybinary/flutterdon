@@ -1,27 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 
-import 'splash.dart';
+import 'app_reducer.dart';
+import 'app_state.dart';
+
 import 'login.dart';
+import 'splash.dart';
 import 'timeline.dart';
 
 void main() {
-  runApp(new MyApp());
+  runApp(new FlutterdonApp());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class FlutterdonApp extends StatelessWidget {
+  final store = new Store<AppState>(
+    appReducer,
+    initialState: new AppState.initial(),
+
+  );
+  
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new SplashPage(title: 'Flutter Demo Home Page'),
-      routes: <String, WidgetBuilder>{
-        "/login": (context) => new LoginPage(title: "Select Mastodon Instance"),
-        "/timeline": (context) => new TimelinePage(title: "Timeline")
-      },
+    return new StoreProvider(
+      store: store,
+      child: new MaterialApp(
+        title: 'Flutterdon',
+        theme: new ThemeData(
+          primarySwatch: Colors.blue
+        ),
+        routes: {
+          '/': (context) {
+            return new StoreBuilder<AppState>(
+              builder: (context, builder) {
+                return const SplashPage();
+              },
+            );
+          },
+          '/login': (context) {
+            return new StoreBuilder<AppState>(
+              builder: (context, builder) {
+                return const LoginPage();
+              },
+            );
+          },
+          '/timeline': (context) {
+            return new StoreBuilder<AppState>(
+              builder: (context, builder) {
+                return const TimelinePage();
+              },
+            );
+          }
+        },
+      )
     );
   }
 }
