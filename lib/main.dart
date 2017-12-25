@@ -6,6 +6,7 @@ import 'app_reducer.dart';
 import 'app_state.dart';
 
 import 'login.dart';
+import 'middleware/mastodon_api_middleware.dart';
 import 'splash.dart';
 import 'timeline.dart';
 
@@ -17,7 +18,9 @@ class FlutterdonApp extends StatelessWidget {
   final store = new Store<AppState>(
     appReducer,
     initialState: new AppState.initial(),
-
+    middleware: [ 
+      createMastodonMiddleware()
+    ]
   );
   
   @override
@@ -32,6 +35,7 @@ class FlutterdonApp extends StatelessWidget {
         routes: {
           '/': (context) {
             return new StoreBuilder<AppState>(
+              onInit: (store) => store.dispatch(new InitInstancesAction()),
               builder: (context, builder) {
                 return const SplashPage();
               },
@@ -40,7 +44,7 @@ class FlutterdonApp extends StatelessWidget {
           '/login': (context) {
             return new StoreBuilder<AppState>(
               builder: (context, builder) {
-                return const LoginPage();
+                return new LoginPage();
               },
             );
           },

@@ -62,7 +62,7 @@ class MastodonApi {
       _httpClient = createHttpClient();
   }
 
-  Future login() async {
+  Future<Null> login() async {
     final sp = await SharedPreferences.getInstance();
     _clientInfo = ClientInfo.fromSharedPreferences(sp, _instanceUrl); 
     _clientInfo ??= await _registerApp(sp);
@@ -78,8 +78,19 @@ class MastodonApi {
     MastodonInstanceManager.instance().currentApi = this;
   }
 
-  Future logout() async {
+  Future<Null> logout() async {
     final sp = await SharedPreferences.getInstance();
+    final uri = new Uri(scheme: 'https', 
+      host: _instanceUrl, 
+      path: '/oauth/token', 
+      queryParameters: <String, Object>{
+        'client_id': _clientInfo.clientId,
+        'client_secret': _clientInfo.clientSecret,
+        'access_token': _clientInfo.accessToken,
+        'redirect_uri': redirectUrl
+      }
+    );
+    await _httpClient.delete(uri);
     _clientInfo.accessToken = null;
     await _clientInfo.saveToSharedPreferences(sp);
   }
