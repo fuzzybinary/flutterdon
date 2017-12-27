@@ -60,7 +60,11 @@ AppState appReducer(AppState state, Action action) {
       final LoginFailedAction failure = action;
       return state.copyOf(lastExceptionMessage: failure.failureMessage);
     case LogoutAction:
-      return state.copyOf(instanceName: '', isLoading: false);
+      return state.copyOf(
+        instanceName: '',
+        isLoading: false,
+        lastExceptionMessage: '',
+        homeTimeline: <Status>[]);
     case TimelineLoadFinihsed:
       final TimelineLoadFinihsed timelineAciton = action;
       return state.copyOf(homeTimeline: timelineAciton.timeline);

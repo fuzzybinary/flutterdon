@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:redux/redux.dart';
 
 import 'app_reducer.dart';
 import 'app_state.dart';
@@ -23,9 +22,11 @@ class LoginPage extends StatelessWidget {
         }      
       ),
       onInit: (store) {
-        store.onChange.listen((AppState state) {
-          if(state.instanceName != null) {
+        StreamSubscription<AppState> subscription;
+        subscription = store.onChange.listen((AppState state) {
+          if(state.instanceName != null && state.instanceName.isNotEmpty) {
             Navigator.of(context).pushReplacementNamed('/timeline');
+            subscription.cancel();
           }
         });
       },

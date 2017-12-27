@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:flutter/material.dart';
 
@@ -11,13 +13,15 @@ class SplashPage extends StatelessWidget {
     return new StoreConnector<AppState, AppState>(
       converter: (store) => store.state,
       onInit: (store) {
-        store.onChange.listen((AppState state) {
+        StreamSubscription<AppState> subscription;
+        subscription = store.onChange.listen((AppState state) {
           if(!state.instancesLoading) {
             if(state.instanceName != null) {
               Navigator.of(context).pushReplacementNamed('/timeline');
             } else {
               Navigator.of(context).pushReplacementNamed('/login');
             }
+            subscription.cancel();
           }
         });
       },
