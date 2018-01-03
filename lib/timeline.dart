@@ -63,7 +63,7 @@ class _TimelinePageState extends State<TimelinePage> {
     }
     return new ListView.builder(
       itemBuilder: (BuildContext buildContext, int index) => new TootCell(status: _statusList[index]),
-      itemCount: _statusList.length 
+      itemCount: _statusList.length,
     );
   }
 }

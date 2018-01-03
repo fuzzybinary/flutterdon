@@ -8,6 +8,8 @@ dependencies:
   http: '>=0.11.3+12'
   shared_preferences: '>=0.2.0'
   flutter_webview_plugin: '>=0.0.9'
+  test: any
+  html_unescape: '0.1.5'
 
 dev_dependencies:
   flutter_test:
