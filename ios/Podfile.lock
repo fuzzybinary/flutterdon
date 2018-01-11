@@ -8,7 +8,7 @@ PODS:
 DEPENDENCIES:
   - Flutter (from `/Users/jeffward/Projects/flutter/bin/cache/artifacts/engine/ios`)
   - flutter_webview_plugin (from `/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.0.9+1/ios`)
-  - shared_preferences (from `/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.2.5/ios`)
+  - shared_preferences (from `/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.3.0/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
@@ -16,7 +16,7 @@ EXTERNAL SOURCES:
   flutter_webview_plugin:
     :path: "/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/flutter_webview_plugin-0.0.9+1/ios"
   shared_preferences:
-    :path: "/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.2.5/ios"
+    :path: "/Users/jeffward/.pub-cache/hosted/pub.dartlang.org/shared_preferences-0.3.0/ios"
 
 SPEC CHECKSUMS:
   Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf

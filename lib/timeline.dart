@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
+import 'toot_details.dart';
 
 import 'widgets/toot_cell_widget.dart';
 
@@ -38,8 +39,16 @@ class _TimelinePageState extends State<TimelinePage> {
     });
   }
 
+  void _handleTap(Status status) {
+    final theme = DefaultTextStyle.of(context).style;
+    Navigator.push(context, new MaterialPageRoute(builder: (_) {
+      return new TootDetailsPage(toot: status);
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = DefaultTextStyle.of(context).style;
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.title),
@@ -62,7 +71,12 @@ class _TimelinePageState extends State<TimelinePage> {
       );
     }
     return new ListView.builder(
-      itemBuilder: (BuildContext buildContext, int index) => new TootCell(status: _statusList[index]),
+      itemBuilder: (BuildContext buildContext, int index) {
+        return new GestureDetector(
+          onTap: () { _handleTap(_statusList[index]); },
+          child: new TootCell(status: _statusList[index]),
+        );
+      },
       itemCount: _statusList.length,
     );
   }
