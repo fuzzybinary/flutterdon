@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utilities/toot_utilities.dart';
-import '../mastodon/mastodon.dart';
+import '../mastodon/models/built_models.dart';
 
 class TootCell extends StatefulWidget {
   TootCell({Key key, this.status}) : super(key: key);

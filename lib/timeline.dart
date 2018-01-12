@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
+import 'mastodon/models/built_models.dart';
 import 'toot_details.dart';
 
 import 'widgets/toot_cell_widget.dart';
@@ -26,7 +27,8 @@ class _TimelinePageState extends State<TimelinePage> {
     _loadTimeline();
   }
   
-  void _logout() {
+  Future<Null> _logout() async {
+    await MastodonInstanceManager.instance().currentApi.logout();
     Navigator.of(context).pushReplacementNamed("/login");
   }
 

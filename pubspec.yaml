@@ -15,6 +15,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  build: any
+  source_gen: any
+  build_runner: '^0.6.0'
+  built_value_generator: any
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

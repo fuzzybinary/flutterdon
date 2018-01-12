@@ -7,7 +7,10 @@ import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-part 'models.dart';
+import 'models/built_models.dart';
+import 'models/serializers.dart';
+
+part 'client_info.dart';
 part 'web_view_modal.dart';
 
 final String clientName = "flutterdon";
@@ -85,8 +88,7 @@ class MastodonApi {
 
   Future logout() async {
     final sp = await SharedPreferences.getInstance();
-    _clientInfo.accessToken = null;
-    await _clientInfo.saveToSharedPreferences(sp);
+    await _clientInfo.clearFromSharedPreferences(sp);
   }
 
   Future<List<Status>> getTimeline() async {
@@ -94,7 +96,8 @@ class MastodonApi {
     final statusListJson = JSON.decode(response.body);
     final statusList = new List<Status>();
     for(var statusJson in statusListJson) {
-      statusList.add(new Status.fromJson(statusJson));
+      final status = jsonSerializers.deserializeWith(Status.serializer, statusJson);
+      statusList.add(status);
     }
     return statusList;
   }
@@ -113,8 +116,8 @@ class MastodonApi {
     }
   
     final jsonResponse = JSON.decode(response.body);
-    final regResponse = new RegisterResponse.fromJson(jsonResponse);
-
+    final regResponse = jsonSerializers.deserializeWith(RegisterResponse.serializer, jsonResponse);
+    
     var clientInfo = new ClientInfo(_instanceUrl, regResponse.clientId, regResponse.clientSecret);
     await clientInfo.saveToSharedPreferences(sp);
 
@@ -176,8 +179,9 @@ class MastodonApi {
 
   Future<Account> _verifyCredentials() async {
     final response = await _performRequest("/api/v1/accounts/verify_credentials");
+    var json = JSON.decode(response.body);
 
-    return new Account.fromJson(JSON.decode(response.body));
+    return jsonSerializers.deserializeWith(Account.serializer, json);
   }
 
   Future<Response> _performRequest(String path) async {
