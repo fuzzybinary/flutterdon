@@ -16,6 +16,13 @@ part of serializers;
 
 Serializers _$serialzers = (new Serializers().toBuilder()
       ..add(Account.serializer)
+      ..add(Context.serializer)
       ..add(RegisterResponse.serializer)
-      ..add(Status.serializer))
+      ..add(Status.serializer)
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Status)]),
+          () => new ListBuilder<Status>())
+      ..addBuilderFactory(
+          const FullType(BuiltList, const [const FullType(Status)]),
+          () => new ListBuilder<Status>()))
     .build();

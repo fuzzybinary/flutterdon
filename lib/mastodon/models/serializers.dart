@@ -1,6 +1,7 @@
 library serializers;
 
 import 'package:built_value/serializer.dart';
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/standard_json_plugin.dart';
 
 import 'built_models.dart';
@@ -11,6 +12,7 @@ part 'serializers.g.dart';
   RegisterResponse,
   Account,
   Status,
+  Context,
 ])
 final Serializers serialzers = _$serialzers;
 final Serializers jsonSerializers = (_$serialzers.toBuilder()

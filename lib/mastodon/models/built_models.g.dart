@@ -18,6 +18,7 @@ Serializer<RegisterResponse> _$registerResponseSerializer =
     new _$RegisterResponseSerializer();
 Serializer<Account> _$accountSerializer = new _$AccountSerializer();
 Serializer<Status> _$statusSerializer = new _$StatusSerializer();
+Serializer<Context> _$contextSerializer = new _$ContextSerializer();
 
 class _$RegisterResponseSerializer
     implements StructuredSerializer<RegisterResponse> {
@@ -407,6 +408,59 @@ class _$StatusSerializer implements StructuredSerializer<Status> {
         case 'language':
           result.language = serializers.deserialize(value,
               specifiedType: const FullType(String)) as String;
+          break;
+      }
+    }
+
+    return result.build();
+  }
+}
+
+class _$ContextSerializer implements StructuredSerializer<Context> {
+  @override
+  final Iterable<Type> types = const [Context, _$Context];
+  @override
+  final String wireName = 'Context';
+
+  @override
+  Iterable serialize(Serializers serializers, Context object,
+      {FullType specifiedType: FullType.unspecified}) {
+    final result = <Object>[
+      'ancestors',
+      serializers.serialize(object.ancestors,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(Status)])),
+      'descendants',
+      serializers.serialize(object.descendants,
+          specifiedType:
+              const FullType(BuiltList, const [const FullType(Status)])),
+    ];
+
+    return result;
+  }
+
+  @override
+  Context deserialize(Serializers serializers, Iterable serialized,
+      {FullType specifiedType: FullType.unspecified}) {
+    final result = new ContextBuilder();
+
+    final iterator = serialized.iterator;
+    while (iterator.moveNext()) {
+      final key = iterator.current as String;
+      iterator.moveNext();
+      final dynamic value = iterator.current;
+      switch (key) {
+        case 'ancestors':
+          result.ancestors.replace(serializers.deserialize(value,
+                  specifiedType:
+                      const FullType(BuiltList, const [const FullType(Status)]))
+              as BuiltList<Status>);
+          break;
+        case 'descendants':
+          result.descendants.replace(serializers.deserialize(value,
+                  specifiedType:
+                      const FullType(BuiltList, const [const FullType(Status)]))
+              as BuiltList<Status>);
           break;
       }
     }
@@ -1159,6 +1213,111 @@ class StatusBuilder implements Builder<Status, StatusBuilder> {
       } catch (e) {
         throw new BuiltValueNestedFieldError(
             'Status', _$failedField, e.toString());
+      }
+      rethrow;
+    }
+    replace(_$result);
+    return _$result;
+  }
+}
+
+class _$Context extends Context {
+  @override
+  final BuiltList<Status> ancestors;
+  @override
+  final BuiltList<Status> descendants;
+
+  factory _$Context([void updates(ContextBuilder b)]) =>
+      (new ContextBuilder()..update(updates)).build();
+
+  _$Context._({this.ancestors, this.descendants}) : super._() {
+    if (ancestors == null)
+      throw new BuiltValueNullFieldError('Context', 'ancestors');
+    if (descendants == null)
+      throw new BuiltValueNullFieldError('Context', 'descendants');
+  }
+
+  @override
+  Context rebuild(void updates(ContextBuilder b)) =>
+      (toBuilder()..update(updates)).build();
+
+  @override
+  ContextBuilder toBuilder() => new ContextBuilder()..replace(this);
+
+  @override
+  bool operator ==(dynamic other) {
+    if (identical(other, this)) return true;
+    if (other is! Context) return false;
+    return ancestors == other.ancestors && descendants == other.descendants;
+  }
+
+  @override
+  int get hashCode {
+    return $jf($jc($jc(0, ancestors.hashCode), descendants.hashCode));
+  }
+
+  @override
+  String toString() {
+    return (newBuiltValueToStringHelper('Context')
+          ..add('ancestors', ancestors)
+          ..add('descendants', descendants))
+        .toString();
+  }
+}
+
+class ContextBuilder implements Builder<Context, ContextBuilder> {
+  _$Context _$v;
+
+  ListBuilder<Status> _ancestors;
+  ListBuilder<Status> get ancestors =>
+      _$this._ancestors ??= new ListBuilder<Status>();
+  set ancestors(ListBuilder<Status> ancestors) => _$this._ancestors = ancestors;
+
+  ListBuilder<Status> _descendants;
+  ListBuilder<Status> get descendants =>
+      _$this._descendants ??= new ListBuilder<Status>();
+  set descendants(ListBuilder<Status> descendants) =>
+      _$this._descendants = descendants;
+
+  ContextBuilder();
+
+  ContextBuilder get _$this {
+    if (_$v != null) {
+      _ancestors = _$v.ancestors?.toBuilder();
+      _descendants = _$v.descendants?.toBuilder();
+      _$v = null;
+    }
+    return this;
+  }
+
+  @override
+  void replace(Context other) {
+    if (other == null) throw new ArgumentError.notNull('other');
+    _$v = other as _$Context;
+  }
+
+  @override
+  void update(void updates(ContextBuilder b)) {
+    if (updates != null) updates(this);
+  }
+
+  @override
+  _$Context build() {
+    _$Context _$result;
+    try {
+      _$result = _$v ??
+          new _$Context._(
+              ancestors: ancestors.build(), descendants: descendants.build());
+    } catch (_) {
+      String _$failedField;
+      try {
+        _$failedField = 'ancestors';
+        ancestors.build();
+        _$failedField = 'descendants';
+        descendants.build();
+      } catch (e) {
+        throw new BuiltValueNestedFieldError(
+            'Context', _$failedField, e.toString());
       }
       rethrow;
     }

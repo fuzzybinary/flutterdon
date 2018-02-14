@@ -1,5 +1,6 @@
 library built_models;
 
+import 'package:built_collection/built_collection.dart';
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 
@@ -125,4 +126,13 @@ abstract class Status extends Built<Status, StatusBuilder> {
   factory Status([updates(StatusBuilder b)]) = _$Status;
   
   static Serializer<Status> get serializer => _$statusSerializer;
+}
+
+abstract class Context extends Built<Context, ContextBuilder> {
+  BuiltList<Status> get ancestors;
+  BuiltList<Status> get descendants;
+
+  Context._();
+  factory Context([updates(ContextBuilder b)]) = _$Context;
+  static Serializer<Context> get serializer => _$contextSerializer;
 }

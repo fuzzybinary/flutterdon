@@ -42,7 +42,6 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   void _handleTap(Status status) {
-    final theme = DefaultTextStyle.of(context).style;
     Navigator.push(context, new MaterialPageRoute(builder: (_) {
       return new TootDetailsPage(toot: status);
     }));
@@ -50,7 +49,6 @@ class _TimelinePageState extends State<TimelinePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = DefaultTextStyle.of(context).style;
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(widget.title),

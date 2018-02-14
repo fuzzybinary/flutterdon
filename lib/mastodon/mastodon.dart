@@ -102,6 +102,13 @@ class MastodonApi {
     return statusList;
   }
 
+  Future<Context> getContext(Status status) async {
+    final response = await _performRequest('/api/v1/statuses/${status.id}/context');
+    final contextJson = JSON.decode(response.body);
+    final context = jsonSerializers.deserializeWith(Context.serializer, contextJson);
+    return context;
+  }
+
   Future<ClientInfo> _registerApp(SharedPreferences sp) async {
     final url = "https://$_instanceUrl/api/v1/apps";
     final body = {
