@@ -12,9 +12,9 @@ class ClientInfo {
     ClientInfo clientInfo;
     final encoded = sp.getString("mastodon:instance:data:$instanceName");
     if(encoded != null) {
-      final json = JSON.decode(encoded);
+      final decoded = json.decode(encoded);
     
-      clientInfo = new ClientInfo(json['instance_name'], json['client_id'], json['client_secret'], json['access_token']);
+      clientInfo = new ClientInfo(decoded['instance_name'], decoded['client_id'], decoded['client_secret'], decoded['access_token']);
     }
     return clientInfo;
   }
@@ -22,11 +22,10 @@ class ClientInfo {
 
   Future clearFromSharedPreferences(SharedPreferences sp) async {
     sp.remove("mastodon:instance:data:$instanceName");
-    await sp.commit();
   }
 
   Future saveToSharedPreferences(SharedPreferences sp) async {
-    var encoded = JSON.encode({ 
+    var encoded = json.encode({ 
       'instance_name': instanceName,
       'client_id': clientId,
       'client_secret': clientSecret,
@@ -34,7 +33,6 @@ class ClientInfo {
     });
   
     sp.setString("mastodon:instance:data:$instanceName", encoded);
-    await sp.commit();
   }
 
 }

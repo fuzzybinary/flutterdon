@@ -7,7 +7,7 @@ import 'package:built_value/serializer.dart';
 part 'built_models.g.dart';
 
 abstract class RegisterResponse 
-  extends Built<RegisterResponse, RegisterResponseBuilder> {
+  implements Built<RegisterResponse, RegisterResponseBuilder> {
 
   String get id;
   @nullable
@@ -28,7 +28,7 @@ abstract class RegisterResponse
 }
 
 abstract class Account
-  extends Built<Account, AccountBuilder> {
+  implements Built<Account, AccountBuilder> {
 
   String get id;
   String get username;
@@ -69,9 +69,11 @@ abstract class Account
   static Serializer<Account> get serializer => _$accountSerializer;
 }
 
-abstract class Status extends Built<Status, StatusBuilder> {
+abstract class Status implements Built<Status, StatusBuilder> {
   String get id;
+  @nullable
   String get uri;
+  @nullable
   String get url;
   Account get account;
   
@@ -128,7 +130,7 @@ abstract class Status extends Built<Status, StatusBuilder> {
   static Serializer<Status> get serializer => _$statusSerializer;
 }
 
-abstract class Context extends Built<Context, ContextBuilder> {
+abstract class Context implements Built<Context, ContextBuilder> {
   BuiltList<Status> get ancestors;
   BuiltList<Status> get descendants;
 

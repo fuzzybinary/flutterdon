@@ -3,13 +3,15 @@
 part of built_models;
 
 // **************************************************************************
-// Generator: BuiltValueGenerator
+// BuiltValueGenerator
 // **************************************************************************
 
 // ignore_for_file: always_put_control_body_on_new_line
 // ignore_for_file: annotate_overrides
 // ignore_for_file: avoid_annotating_with_dynamic
+// ignore_for_file: avoid_catches_without_on_clauses
 // ignore_for_file: avoid_returning_this
+// ignore_for_file: lines_longer_than_80_chars
 // ignore_for_file: omit_local_variable_types
 // ignore_for_file: prefer_expression_function_bodies
 // ignore_for_file: sort_constructors_first
@@ -29,7 +31,7 @@ class _$RegisterResponseSerializer
 
   @override
   Iterable serialize(Serializers serializers, RegisterResponse object,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
@@ -61,7 +63,7 @@ class _$RegisterResponseSerializer
 
   @override
   RegisterResponse deserialize(Serializers serializers, Iterable serialized,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = new RegisterResponseBuilder();
 
     final iterator = serialized.iterator;
@@ -109,7 +111,7 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
 
   @override
   Iterable serialize(Serializers serializers, Account object,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
@@ -167,7 +169,7 @@ class _$AccountSerializer implements StructuredSerializer<Account> {
 
   @override
   Account deserialize(Serializers serializers, Iterable serialized,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = new AccountBuilder();
 
     final iterator = serialized.iterator;
@@ -247,14 +249,10 @@ class _$StatusSerializer implements StructuredSerializer<Status> {
 
   @override
   Iterable serialize(Serializers serializers, Status object,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'id',
       serializers.serialize(object.id, specifiedType: const FullType(String)),
-      'uri',
-      serializers.serialize(object.uri, specifiedType: const FullType(String)),
-      'url',
-      serializers.serialize(object.url, specifiedType: const FullType(String)),
       'account',
       serializers.serialize(object.account,
           specifiedType: const FullType(Account)),
@@ -280,6 +278,18 @@ class _$StatusSerializer implements StructuredSerializer<Status> {
       serializers.serialize(object.visibility,
           specifiedType: const FullType(String)),
     ];
+    if (object.uri != null) {
+      result
+        ..add('uri')
+        ..add(serializers.serialize(object.uri,
+            specifiedType: const FullType(String)));
+    }
+    if (object.url != null) {
+      result
+        ..add('url')
+        ..add(serializers.serialize(object.url,
+            specifiedType: const FullType(String)));
+    }
     if (object.inReplyToId != null) {
       result
         ..add('in_reply_to_id')
@@ -328,7 +338,7 @@ class _$StatusSerializer implements StructuredSerializer<Status> {
 
   @override
   Status deserialize(Serializers serializers, Iterable serialized,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = new StatusBuilder();
 
     final iterator = serialized.iterator;
@@ -424,7 +434,7 @@ class _$ContextSerializer implements StructuredSerializer<Context> {
 
   @override
   Iterable serialize(Serializers serializers, Context object,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = <Object>[
       'ancestors',
       serializers.serialize(object.ancestors,
@@ -441,7 +451,7 @@ class _$ContextSerializer implements StructuredSerializer<Context> {
 
   @override
   Context deserialize(Serializers serializers, Iterable serialized,
-      {FullType specifiedType: FullType.unspecified}) {
+      {FullType specifiedType = FullType.unspecified}) {
     final result = new ContextBuilder();
 
     final iterator = serialized.iterator;
@@ -454,13 +464,13 @@ class _$ContextSerializer implements StructuredSerializer<Context> {
           result.ancestors.replace(serializers.deserialize(value,
                   specifiedType:
                       const FullType(BuiltList, const [const FullType(Status)]))
-              as BuiltList<Status>);
+              as BuiltList);
           break;
         case 'descendants':
           result.descendants.replace(serializers.deserialize(value,
                   specifiedType:
                       const FullType(BuiltList, const [const FullType(Status)]))
-              as BuiltList<Status>);
+              as BuiltList);
           break;
       }
     }
@@ -940,8 +950,6 @@ class _$Status extends Status {
       this.language})
       : super._() {
     if (id == null) throw new BuiltValueNullFieldError('Status', 'id');
-    if (uri == null) throw new BuiltValueNullFieldError('Status', 'uri');
-    if (url == null) throw new BuiltValueNullFieldError('Status', 'url');
     if (account == null)
       throw new BuiltValueNullFieldError('Status', 'account');
     if (content == null)

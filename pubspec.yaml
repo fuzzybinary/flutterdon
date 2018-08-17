@@ -5,22 +5,19 @@ dependencies:
   flutter:
     sdk: flutter
   
+  built_value: ^5.4.4
   http: '>=0.11.3+12'
-  shared_preferences: '>=0.2.0'
-  flutter_webview_plugin: '>=0.0.9'
-  test: any
+  shared_preferences: ^0.4.2
   html_unescape: '0.1.5'
+  test: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build: any
-  source_gen: any
-  build_runner: '^0.6.0'
-  built_value_generator: any
-
-
+  build_runner: ^0.8.0
+  built_value_generator: ^5.4.4
+    
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 

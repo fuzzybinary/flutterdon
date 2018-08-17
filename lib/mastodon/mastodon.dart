@@ -53,7 +53,6 @@ class MastodonInstanceManager {
     if(!currentList.contains(info.instanceName)) {
       currentList.add(info.instanceName);
       sp.setStringList(_InstanceListKey, currentList);
-      await sp.commit();
     }
   }
 }
@@ -65,7 +64,7 @@ class MastodonApi {
   Account _account;
 
   MastodonApi(this._instanceUrl) {
-      _httpClient = createHttpClient();
+      _httpClient = new Client();
   }
 
   Future login() async {
@@ -93,7 +92,7 @@ class MastodonApi {
 
   Future<List<Status>> getTimeline() async {
     final response = await _performRequest("/api/v1/timelines/home");
-    final statusListJson = JSON.decode(response.body);
+    final statusListJson = json.decode(response.body);
     final statusList = new List<Status>();
     for(var statusJson in statusListJson) {
       final status = jsonSerializers.deserializeWith(Status.serializer, statusJson);
@@ -104,7 +103,7 @@ class MastodonApi {
 
   Future<Context> getContext(Status status) async {
     final response = await _performRequest('/api/v1/statuses/${status.id}/context');
-    final contextJson = JSON.decode(response.body);
+    final contextJson = json.decode(response.body);
     final context = jsonSerializers.deserializeWith(Context.serializer, contextJson);
     return context;
   }
@@ -122,7 +121,7 @@ class MastodonApi {
       throw new Exception("Error registering app with mastodon instance: ");
     }
   
-    final jsonResponse = JSON.decode(response.body);
+    final jsonResponse = json.decode(response.body);
     final regResponse = jsonSerializers.deserializeWith(RegisterResponse.serializer, jsonResponse);
     
     var clientInfo = new ClientInfo(_instanceUrl, regResponse.clientId, regResponse.clientSecret);
@@ -142,7 +141,7 @@ class MastodonApi {
     final modal = new WebViewModal(uri.toString());
     
     String code;
-    HttpServer server = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, redirectPort);
+    HttpServer server = await HttpServer.bind(InternetAddress.loopbackIPv4, redirectPort);
     server.listen((HttpRequest request) async {
       const html = "<html></html>";
       code = request.uri.queryParameters["code"];
@@ -178,7 +177,7 @@ class MastodonApi {
       throw new Exception("Error getting access token: ");
     }
 
-    final jsonResponse = JSON.decode(response.body);
+    final jsonResponse = json.decode(response.body);
     final code = jsonResponse["access_token"];
     
     return code;
@@ -186,9 +185,9 @@ class MastodonApi {
 
   Future<Account> _verifyCredentials() async {
     final response = await _performRequest("/api/v1/accounts/verify_credentials");
-    var json = JSON.decode(response.body);
+    var decoded = json.decode(response.body);
 
-    return jsonSerializers.deserializeWith(Account.serializer, json);
+    return jsonSerializers.deserializeWith(Account.serializer, decoded);
   }
 
   Future<Response> _performRequest(String path) async {
