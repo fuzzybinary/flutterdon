@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
-import 'mastodon/models/built_models.dart';
+import 'mastodon/models.dart';
 
 import 'widgets/toot_cell_widget.dart';
 
 class TootDetailsPage extends StatelessWidget {
-  final Status toot;
+  final Toot toot;
 
   TootDetailsPage({Key key, this.toot}) : super(key: key);
 
@@ -22,7 +22,7 @@ class TootDetailsPage extends StatelessWidget {
 }
 
 class _InnterTootDetailsPage  extends StatefulWidget {
-  final Status toot;
+  final Toot toot;
 
   _InnterTootDetailsPage({Key key, this.toot}) : super(key: key);
   
@@ -72,7 +72,7 @@ class _TootDetailsState extends State<_InnterTootDetailsPage> {
   }
 
   Widget _buildItem(BuildContext context, int index) {
-    Status status = widget.toot;
+    Toot status = widget.toot;
     if(tootContext != null) {
       if(index < tootContext.ancestors.length) {
         status = tootContext.ancestors[index];

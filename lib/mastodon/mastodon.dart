@@ -7,8 +7,7 @@ import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'models/built_models.dart';
-import 'models/serializers.dart';
+import 'models.dart';
 
 part 'client_info.dart';
 part 'web_view_modal.dart';
@@ -90,21 +89,21 @@ class MastodonApi {
     await _clientInfo.clearFromSharedPreferences(sp);
   }
 
-  Future<List<Status>> getTimeline() async {
+  Future<List<Toot>> getTimeline() async {
     final response = await _performRequest("/api/v1/timelines/home");
     final statusListJson = json.decode(response.body);
-    final statusList = new List<Status>();
+    final statusList = new List<Toot>();
     for(var statusJson in statusListJson) {
-      final status = jsonSerializers.deserializeWith(Status.serializer, statusJson);
+      final status = Toot.fromJson(statusJson);
       statusList.add(status);
     }
     return statusList;
   }
 
-  Future<Context> getContext(Status status) async {
+  Future<Context> getContext(Toot status) async {
     final response = await _performRequest('/api/v1/statuses/${status.id}/context');
     final contextJson = json.decode(response.body);
-    final context = jsonSerializers.deserializeWith(Context.serializer, contextJson);
+    final context = Context.fromJson(contextJson);
     return context;
   }
 
@@ -122,7 +121,7 @@ class MastodonApi {
     }
   
     final jsonResponse = json.decode(response.body);
-    final regResponse = jsonSerializers.deserializeWith(RegisterResponse.serializer, jsonResponse);
+    final regResponse = RegisterResponse.fromJson(jsonResponse);
     
     var clientInfo = new ClientInfo(_instanceUrl, regResponse.clientId, regResponse.clientSecret);
     await clientInfo.saveToSharedPreferences(sp);
@@ -187,7 +186,7 @@ class MastodonApi {
     final response = await _performRequest("/api/v1/accounts/verify_credentials");
     var decoded = json.decode(response.body);
 
-    return jsonSerializers.deserializeWith(Account.serializer, decoded);
+    return Account.fromJson(decoded);
   }
 
   Future<Response> _performRequest(String path) async {
