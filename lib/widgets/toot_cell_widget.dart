@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
 
-import '../utilities/toot_utilities.dart';
 import '../mastodon/models.dart';
+import '../utilities/toot_utilities.dart';
 
 class TootCell extends StatefulWidget {
-  TootCell({Key key, this.status}) : super(key: key);
+  const TootCell({super.key, required this.status});
 
   final Toot status;
 
   @override
-  _TootCellState createState() => new _TootCellState();
+  _TootCellState createState() => _TootCellState();
 }
 
 class _TootCellState extends State<TootCell> {
-  
   RichText _createTextTree(BuildContext context, String status) {
-    return new RichText(
+    return RichText(
       text: TootUtilities.createTextSpansForTootHTML(context, status),
     );
   }
 
   Widget _actionBar() {
-    return new Column(
+    return Column(
       children: <Widget>[
-        new Padding(
-          padding: new EdgeInsets.all(10.0),
-          child: _createTextTree(context, widget.status.content)
-        ),
-        new Container(
+        Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: _createTextTree(context, widget.status.content)),
+        SizedBox(
           height: 30.0,
-          child: new Row(
+          child: Row(
             children: <Widget>[
-              new FlatButton(
-                child: new Text("Reply"),
+              TextButton(
+                child: const Text('Reply'),
                 onPressed: () {},
               ),
-              new FlatButton(
-                child: new Text("RT"),
+              TextButton(
+                child: const Text('RT'),
                 onPressed: () {},
               ),
-              new FlatButton(
-                child: new Text("Fav"),
+              TextButton(
+                child: const Text('Fav'),
                 onPressed: () {},
               )
             ],
@@ -52,43 +50,44 @@ class _TootCellState extends State<TootCell> {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-        key: new PageStorageKey<Toot>(widget.status),
-        decoration: new BoxDecoration(border: new Border.all(
+    return Container(
+      key: PageStorageKey<Toot>(widget.status),
+      decoration: BoxDecoration(
+        border: Border.all(
           color: Colors.black,
-        )),
-        child: new Padding(
-          padding: new EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-          child: new IntrinsicHeight(
-            child: new Row(
-              children: <Widget>[
-                new Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    new Container(
-                      height: 10.0,
-                      decoration: new BoxDecoration(
-                        border: new Border.all()
-                      ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
+        child: IntrinsicHeight(
+          child: Row(
+            children: <Widget>[
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    height: 10.0,
+                    decoration: BoxDecoration(
+                      border: Border.all(),
                     ),
-                    new Image.network(widget.status.account.avatarStatic,
-                      width: 50.0,
-                      height: 50.0,
+                  ),
+                  Image.network(
+                    widget.status.account.avatarStatic,
+                    width: 50.0,
+                    height: 50.0,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(border: Border.all()),
                     ),
-                    new Expanded(
-                      child: new Container(
-                        decoration: new BoxDecoration(border: new Border.all()),
-                      )
-                    )
-                  ]
-                ),
-                new Expanded(
-                  child: _actionBar()
-                )
-              ]
-            )
-          ) 
-        )
-      );
-    }
+                  )
+                ],
+              ),
+              Expanded(child: _actionBar())
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

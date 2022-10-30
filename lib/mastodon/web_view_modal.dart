@@ -1,17 +1,15 @@
 part of mastodon;
 
-const MethodChannel _channel =
-    const MethodChannel('plugins.flutter.io/webmodal');
+const MethodChannel _channel = MethodChannel('plugins.flutter.io/webmodal');
 
 class WebViewModal {
-  String _urlString;
-  
-  WebViewModal(String urlString) {
-    this._urlString = urlString;
+  final String urlString;
+
+  WebViewModal(this.urlString) {
     final Uri url = Uri.parse(urlString.trimLeft());
     final bool isWebURL = url.scheme == 'http' || url.scheme == 'https';
     if (!isWebURL) {
-      throw new PlatformException(
+      throw PlatformException(
           code: 'NOT_A_WEB_SCHEME',
           message: 'To use webview or safariVC, you need to pass'
               'in a web URL. This $urlString is not a web URL.');
@@ -21,9 +19,7 @@ class WebViewModal {
   Future present() async {
     return _channel.invokeMethod(
       'present',
-      <String, Object>{
-        'url': _urlString
-      },
+      <String, Object>{'url': urlString},
     );
   }
 

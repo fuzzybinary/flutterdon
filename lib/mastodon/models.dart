@@ -6,14 +6,22 @@ part 'models.g.dart';
 class RegisterResponse {
   final String id;
   final String name;
-  final String website;
+  final String? website;
   final String redirectUri;
   final String clientId;
   final String clientSecret;
-  
-  RegisterResponse({this.id, this.name, this.website, this.redirectUri, this.clientId, this.clientSecret});
 
-  factory RegisterResponse.fromJson(Map<String, dynamic> json) => _$RegisterResponseFromJson(json);
+  RegisterResponse({
+    required this.id,
+    required this.name,
+    required this.website,
+    required this.redirectUri,
+    required this.clientId,
+    required this.clientSecret,
+  });
+
+  factory RegisterResponse.fromJson(Map<String, dynamic> json) =>
+      _$RegisterResponseFromJson(json);
   Map<String, dynamic> toJson() => _$RegisterResponseToJson(this);
 }
 
@@ -35,23 +43,24 @@ class Account {
   final String headerStatic;
 
   Account({
-    this.id,
-    this.username,
-    this.acct,
-    this.displayName,
-    this.locked,
-    this.followersCount,
-    this.followingCount,
-    this.statusesCount,
-    this.note,
-    this.url,
-    this.avatar,
-    this.avatarStatic,
-    this.header,
-    this.headerStatic
+    required this.id,
+    required this.username,
+    required this.acct,
+    required this.displayName,
+    required this.locked,
+    required this.followersCount,
+    required this.followingCount,
+    required this.statusesCount,
+    required this.note,
+    required this.url,
+    required this.avatar,
+    required this.avatarStatic,
+    required this.header,
+    required this.headerStatic,
   });
-  
-  factory Account.fromJson(Map<String, dynamic> json) => _$AccountFromJson(json);
+
+  factory Account.fromJson(Map<String, dynamic> json) =>
+      _$AccountFromJson(json);
   Map<String, dynamic> toJson() => _$AccountToJson(this);
 }
 
@@ -67,7 +76,7 @@ class Toot {
   final String reblog;
   final String content;
   final String createdAt;
-  
+
   final int reblogsCount;
   final int favoritesCount;
   final bool reblogged;
@@ -79,26 +88,26 @@ class Toot {
   final String language;
 
   Toot({
-    this.id,
-    this.uri,
-    this.url,
-    this.account,
-    this.inReplyToId,
-    this.inReplyToAccountId,
-    this.reblog,
-    this.content,
-    this.createdAt,
-    this.reblogsCount,
-    this.favoritesCount,
-    this.reblogged,
-    this.favourited,
-    this.muted,
-    this.sensitive,
-    this.spoilerText,
-    this.visibility,
-    this.language
+    required this.id,
+    required this.uri,
+    required this.url,
+    required this.account,
+    required this.inReplyToId,
+    required this.inReplyToAccountId,
+    required this.reblog,
+    required this.content,
+    required this.createdAt,
+    required this.reblogsCount,
+    required this.favoritesCount,
+    required this.reblogged,
+    required this.favourited,
+    required this.muted,
+    required this.sensitive,
+    required this.spoilerText,
+    required this.visibility,
+    required this.language,
   });
-  
+
   factory Toot.fromJson(Map<String, dynamic> json) => _$TootFromJson(json);
   Map<String, dynamic> toJson() => _$TootToJson(this);
 }
@@ -108,8 +117,12 @@ class Context {
   final List<Toot> ancestors;
   final List<Toot> descendants;
 
-  Context({this.ancestors, this.descendants});
-  
-  factory Context.fromJson(Map<String, dynamic> json) => _$ContextFromJson(json);
+  Context({
+    required this.ancestors,
+    required this.descendants,
+  });
+
+  factory Context.fromJson(Map<String, dynamic> json) =>
+      _$ContextFromJson(json);
   Map<String, dynamic> toJson() => _$ContextToJson(this);
 }

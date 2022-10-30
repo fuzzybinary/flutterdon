@@ -1,28 +1,29 @@
 import 'package:flutter/material.dart';
 
-import 'splash.dart';
 import 'login.dart';
+import 'splash.dart';
 import 'timeline.dart';
 
 void main() {
-  runApp(new MyApp());
+  runApp(const MyApp());
 }
 
-
-
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new SplashPage(title: 'Flutter Demo Home Page'),
+      home: const SplashPage(title: 'Flutter Demo Home Page'),
       routes: <String, WidgetBuilder>{
-        "/login": (context) => new LoginPage(title: "Select Mastodon Instance"),
-        "/timeline": (context) => new TimelinePage(title: "Timeline")
+        '/login': (context) =>
+            const LoginPage(title: 'Select Mastodon Instance'),
+        '/timeline': (context) => const TimelinePage(title: 'Timeline')
       },
     );
   }

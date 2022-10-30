@@ -1,38 +1,38 @@
-import 'package:flutter/material.dart';
-
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key, this.title}) : super(key: key);
+  const LoginPage({super.key, required this.title});
 
   final String title;
 
   @override
-  _LoginPageState createState() => new _LoginPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _textEditingController = new TextEditingController();
+  final _textEditingController = TextEditingController();
   var _loading = false;
-  String _exceptionMessage;
+  String? _exceptionMessage;
 
   void _performLogin() {
     _login();
-    
+
     setState(() {
-      _exceptionMessage = "";
+      _exceptionMessage = '';
       _loading = true;
     });
   }
 
   Future _login() async {
-    var mastodonClient = new MastodonApi(_textEditingController.text);
+    var mastodonClient = MastodonApi(_textEditingController.text);
     try {
       await mastodonClient.login();
-      Navigator.of(context).pushReplacementNamed("/timeline");
-    } catch(exception) {
+      Navigator.of(context).pushReplacementNamed('/timeline');
+    } catch (exception) {
       setState(() {
         _loading = false;
         _exceptionMessage = exception.toString();
@@ -42,42 +42,43 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
       ),
-      body: new Padding(
-        padding: new EdgeInsets.all(30.0),
-        child: new Center(
-          child: new Column(
+      body: Padding(
+        padding: const EdgeInsets.all(30.0),
+        child: Center(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              new Text(
+              const Text(
                 'Mastodon Instance:',
               ),
-              new TextField(
+              TextField(
                 controller: _textEditingController,
                 autofocus: true,
                 autocorrect: false,
-                decoration: new InputDecoration(
-                  hintText: "ex: mastodon.social"
-                ),
+                decoration:
+                    const InputDecoration(hintText: 'ex: mastodon.social'),
               ),
-              new FlatButton(
-                onPressed: _performLogin,
-                color: Colors.blueAccent,
-                textColor: Colors.white,
-                child: new Text("Login"),
+              TextButton(
+                onPressed: _loading ? null : _performLogin,
+                //color: Colors.blueAccent,
+                //textColor: Colors.white,
+                child: const Text('Login'),
               ),
-              _loading ? new CircularProgressIndicator() : new Container(),
-              _exceptionMessage == null ? new Container() : 
-                new Text(_exceptionMessage,
-                  style: new TextStyle(color: Colors.red)
-                ) 
+              _loading ? const CircularProgressIndicator() : Container(),
+              _exceptionMessage == null
+                  ? Container()
+                  : Text(
+                      _exceptionMessage!,
+                      style: const TextStyle(color: Colors.red),
+                    )
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }

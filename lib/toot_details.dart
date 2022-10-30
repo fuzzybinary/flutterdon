@@ -4,56 +4,54 @@ import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
 import 'mastodon/models.dart';
-
 import 'widgets/toot_cell_widget.dart';
 
 class TootDetailsPage extends StatelessWidget {
   final Toot toot;
 
-  TootDetailsPage({Key key, this.toot}) : super(key: key);
+  const TootDetailsPage({super.key, required this.toot});
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(title: new Text('toot')),
-      body: new _InnterTootDetailsPage(toot: toot)
+    return Scaffold(
+      appBar: AppBar(title: const Text('toot')),
+      body: _InnerTootDetailsPage(toot: toot),
     );
   }
 }
 
-class _InnterTootDetailsPage  extends StatefulWidget {
+class _InnerTootDetailsPage extends StatefulWidget {
   final Toot toot;
 
-  _InnterTootDetailsPage({Key key, this.toot}) : super(key: key);
-  
+  const _InnerTootDetailsPage({required this.toot});
+
   @override
-  _TootDetailsState createState() => new _TootDetailsState();
+  _TootDetailsState createState() => _TootDetailsState();
 }
 
-class _TootDetailsState extends State<_InnterTootDetailsPage> {  
+class _TootDetailsState extends State<_InnerTootDetailsPage> {
   int rootIndex = 0;
   bool loading = false;
-  Context tootContext;
-  
-  Future<Null> _loadContext() async {
+  Context? tootContext;
+
+  Future<void> _loadContext() async {
     setState(() {
       loading = true;
     });
 
     try {
-      tootContext = await MastodonInstanceManager.instance().currentApi.getContext(widget.toot);
-    } catch(e) {
-
-      Scaffold.of(context).showSnackBar(
-        new SnackBar(
-          content: new Text("Error loading toot: $e"),
-        )
-      );
+      tootContext = await MastodonInstanceManager.instance()
+          .currentApi
+          ?.getContext(widget.toot);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error loading toot: $e'),
+      ));
     }
 
     setState(() {
       loading = false;
-    }); 
+    });
   }
 
   @override
@@ -65,25 +63,27 @@ class _TootDetailsState extends State<_InnterTootDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new ListView.builder(
-      itemBuilder: _buildItem,
-      itemCount: tootContext == null ? 1 : tootContext.ancestors.length + tootContext.descendants.length + 1,
-    ); 
-  }
-
-  Widget _buildItem(BuildContext context, int index) {
-    Toot status = widget.toot;
-    if(tootContext != null) {
-      if(index < tootContext.ancestors.length) {
-        status = tootContext.ancestors[index];
-      } else { 
-        index -= (tootContext.ancestors.length + 1);
-        if(index >= 0 && index < tootContext.descendants.length) {
-          status = tootContext.descendants[index];
-        }
-      }
+    var itemCount = 1;
+    if (tootContext != null) {
+      itemCount =
+          tootContext!.ancestors.length + tootContext!.descendants.length + 1;
     }
-
-    return new TootCell( status: status);
+    return ListView.builder(
+      itemCount: itemCount,
+      itemBuilder: (context, index) {
+        var status = widget.toot;
+        if (tootContext != null) {
+          if (index < tootContext!.ancestors.length) {
+            status = tootContext!.ancestors[index];
+          } else {
+            index -= (tootContext!.ancestors.length + 1);
+            if (index >= 0 && index < tootContext!.descendants.length) {
+              status = tootContext!.descendants[index];
+            }
+          }
+        }
+        return TootCell(status: status);
+      },
+    );
   }
 }

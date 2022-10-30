@@ -1,20 +1,19 @@
-import 'package:flutter/material.dart';
-
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
 
 class SplashPage extends StatefulWidget {
-  SplashPage({Key key, this.title}) : super(key: key);
+  const SplashPage({super.key, required this.title});
 
   final String title;
 
   @override
-  _SplashPageState createState() => new _SplashPageState();
+  _SplashPageState createState() => _SplashPageState();
 }
 
 class _SplashPageState extends State<SplashPage> {
-  
   @override
   void initState() {
     super.initState();
@@ -25,38 +24,38 @@ class _SplashPageState extends State<SplashPage> {
   Future _checkExistingInstance() async {
     final mim = MastodonInstanceManager.instance();
     final instanceList = await mim.getRegisteredInstances();
-    if(instanceList == null) {
+    if (instanceList == null) {
       _gotoLogin();
     } else {
       // For now, only care about the first instance:
       final instanceName = instanceList.first;
-      final client = new MastodonApi(instanceName);
+      final client = MastodonApi(instanceName);
       try {
         await client.login();
         _gotoTimeline();
-      } catch(Exeception ) {
+      } catch (e) {
         _gotoLogin();
       }
     }
   }
 
   void _gotoLogin() {
-    Navigator.of(context).pushReplacementNamed("/login");
+    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   void _gotoTimeline() {
-    Navigator.of(context).pushReplacementNamed("/timeline");
+    Navigator.of(context).pushReplacementNamed('/timeline');
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
       ),
-      body: new Center(
-        child:  new CircularProgressIndicator() 
-      )
+      body: const Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }
