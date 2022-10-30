@@ -68,13 +68,12 @@ class _LoginPageState extends State<LoginPage> {
                 //textColor: Colors.white,
                 child: const Text('Login'),
               ),
-              _loading ? const CircularProgressIndicator() : Container(),
-              _exceptionMessage == null
-                  ? Container()
-                  : Text(
-                      _exceptionMessage!,
-                      style: const TextStyle(color: Colors.red),
-                    )
+              if (_loading) const CircularProgressIndicator(),
+              if (_exceptionMessage != null)
+                Text(
+                  _exceptionMessage!,
+                  style: const TextStyle(color: Colors.red),
+                )
             ],
           ),
         ),

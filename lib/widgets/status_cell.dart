@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../mastodon/models.dart';
 import '../utilities/status_utilities.dart';
+import 'poster_avatar.dart';
 
 class StatusCell extends StatelessWidget {
   final bool isFirst;
@@ -21,33 +22,31 @@ class StatusCell extends StatelessWidget {
     );
   }
 
+  Widget _statusContent(BuildContext context) {
+    var content = status.reblog?.content ?? status.content;
+
+    return _createTextTree(context, content);
+  }
+
   Widget _actionBar(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: _createTextTree(context, status.content)),
-        SizedBox(
-          height: 30.0,
-          child: Row(
-            children: <Widget>[
-              TextButton(
-                child: const Text('Reply'),
-                onPressed: () {},
-              ),
-              TextButton(
-                child: const Text('RT'),
-                onPressed: () {},
-              ),
-              TextButton(
-                child: const Text('Fav'),
-                onPressed: () {},
-              )
-            ],
+    return SizedBox(
+      height: 30.0,
+      child: Row(
+        children: <Widget>[
+          TextButton(
+            child: const Text('Reply'),
+            onPressed: () {},
           ),
-        )
-      ],
+          TextButton(
+            child: const Text('RT'),
+            onPressed: () {},
+          ),
+          TextButton(
+            child: const Text('Fav'),
+            onPressed: () {},
+          )
+        ],
+      ),
     );
   }
 
@@ -73,11 +72,7 @@ class StatusCell extends StatelessWidget {
                     decoration:
                         !isFirst ? BoxDecoration(border: Border.all()) : null,
                   ),
-                  Image.network(
-                    status.account.avatarStatic,
-                    width: 50.0,
-                    height: 50.0,
-                  ),
+                  PosterAvatar(status: status),
                   Expanded(
                     child: Container(
                       decoration:
@@ -86,7 +81,18 @@ class StatusCell extends StatelessWidget {
                   )
                 ],
               ),
-              Expanded(child: _actionBar(context))
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: _statusContent(context),
+                    ),
+                    _actionBar(context),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

@@ -15,11 +15,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutterdon',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SplashPage(title: 'Flutter Demo Home Page'),
+      home: const SplashPage(title: 'Flutterdon'),
       routes: <String, WidgetBuilder>{
         '/login': (context) =>
             const LoginPage(title: 'Select Mastodon Instance'),
