@@ -6,7 +6,7 @@ import '../utilities/toot_utilities.dart';
 class TootCell extends StatefulWidget {
   const TootCell({super.key, required this.status});
 
-  final Toot status;
+  final Status status;
 
   @override
   _TootCellState createState() => _TootCellState();
@@ -21,6 +21,7 @@ class _TootCellState extends State<TootCell> {
 
   Widget _actionBar() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
             padding: const EdgeInsets.all(10.0),
@@ -51,7 +52,7 @@ class _TootCellState extends State<TootCell> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      key: PageStorageKey<Toot>(widget.status),
+      key: PageStorageKey<Status>(widget.status),
       decoration: BoxDecoration(
         border: Border.all(
           color: Colors.black,

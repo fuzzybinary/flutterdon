@@ -17,7 +17,7 @@ class TimelinePage extends StatefulWidget {
 }
 
 class _TimelinePageState extends State<TimelinePage> {
-  List<Toot>? _statusList;
+  List<Status>? _statusList;
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _TimelinePageState extends State<TimelinePage> {
     setState(() => {});
   }
 
-  void _handleTap(Toot status) {
+  void _handleTap(Status status) {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
       return TootDetailsPage(toot: status);
     }));

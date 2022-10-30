@@ -65,29 +65,31 @@ class Account {
 }
 
 @JsonSerializable(fieldRename: FieldRename.snake)
-class Toot {
+class Status {
   final String id;
   final String uri;
-  final String url;
+  final String? url;
   final Account account;
 
-  final String inReplyToId;
-  final String inReplyToAccountId;
-  final String reblog;
+  final String? inReplyToId;
+  final String? inReplyToAccountId;
+  final Status? reblog;
   final String content;
   final String createdAt;
 
   final int reblogsCount;
-  final int favoritesCount;
-  final bool reblogged;
-  final bool favourited;
-  final bool muted;
+  final int favouritesCount;
+  final int repliesCount;
+
+  final bool? reblogged;
+  final bool? favourited;
+  final bool? muted;
   final bool sensitive;
   final String spoilerText;
   final String visibility;
-  final String language;
+  final String? language;
 
-  Toot({
+  Status({
     required this.id,
     required this.uri,
     required this.url,
@@ -98,7 +100,8 @@ class Toot {
     required this.content,
     required this.createdAt,
     required this.reblogsCount,
-    required this.favoritesCount,
+    required this.favouritesCount,
+    required this.repliesCount,
     required this.reblogged,
     required this.favourited,
     required this.muted,
@@ -108,14 +111,14 @@ class Toot {
     required this.language,
   });
 
-  factory Toot.fromJson(Map<String, dynamic> json) => _$TootFromJson(json);
-  Map<String, dynamic> toJson() => _$TootToJson(this);
+  factory Status.fromJson(Map<String, dynamic> json) => _$StatusFromJson(json);
+  Map<String, dynamic> toJson() => _$StatusToJson(this);
 }
 
 @JsonSerializable()
 class Context {
-  final List<Toot> ancestors;
-  final List<Toot> descendants;
+  final List<Status> ancestors;
+  final List<Status> descendants;
 
   Context({
     required this.ancestors,

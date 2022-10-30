@@ -9,8 +9,6 @@ import Flutter
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
 
-    WebModalPlugin.register(with: self.registrar(forPlugin: "FLTWebModalPlugin"));
-    
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

@@ -4,14 +4,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'models.dart';
 
 part 'client_info.dart';
-part 'web_view_modal.dart';
 
 const String clientName = 'flutterdon';
 const int redirectPort = 8553;
@@ -84,18 +84,18 @@ class MastodonApi {
     await _clientInfo?.clearFromSharedPreferences(sp);
   }
 
-  Future<List<Toot>> getTimeline() async {
+  Future<List<Status>> getTimeline() async {
     final response = await _performRequest('/api/v1/timelines/home');
     final statusListJson = json.decode(response.body);
-    final statusList = <Toot>[];
+    final statusList = <Status>[];
     for (var statusJson in statusListJson) {
-      final status = Toot.fromJson(statusJson);
+      final status = Status.fromJson(statusJson);
       statusList.add(status);
     }
     return statusList;
   }
 
-  Future<Context> getContext(Toot status) async {
+  Future<Context> getContext(Status status) async {
     final response =
         await _performRequest('/api/v1/statuses/${status.id}/context');
     final contextJson = json.decode(response.body);
@@ -138,8 +138,8 @@ class MastodonApi {
         'client_id': _clientInfo!.clientId
       },
     );
-    print('Going to: $uri');
-    final modal = WebViewModal(uri.toString());
+
+    final requestCompleter = Completer();
 
     String? code;
     HttpServer server =
@@ -152,10 +152,15 @@ class MastodonApi {
         ..headers.set('Content-Type', ContentType.html.mimeType)
         ..write(html);
       await request.response.close();
-      modal.close();
+      if (!PlatformUtils.isDesktopPlatform) {
+        await closeInAppWebView();
+      }
+      requestCompleter.complete();
     });
 
-    await modal.present();
+    launchUrl(uri);
+
+    await requestCompleter.future;
     await server.close(force: true);
 
     if (code == null) {
@@ -207,5 +212,12 @@ class MastodonApi {
     }
 
     return response;
+  }
+}
+
+class PlatformUtils {
+  static bool get isDesktopPlatform {
+    return !kIsWeb &&
+        (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
   }
 }

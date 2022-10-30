@@ -7,7 +7,7 @@ import 'mastodon/models.dart';
 import 'widgets/toot_cell_widget.dart';
 
 class TootDetailsPage extends StatelessWidget {
-  final Toot toot;
+  final Status toot;
 
   const TootDetailsPage({super.key, required this.toot});
 
@@ -21,7 +21,7 @@ class TootDetailsPage extends StatelessWidget {
 }
 
 class _InnerTootDetailsPage extends StatefulWidget {
-  final Toot toot;
+  final Status toot;
 
   const _InnerTootDetailsPage({required this.toot});
 
