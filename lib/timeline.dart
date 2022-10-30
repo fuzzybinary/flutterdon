@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'mastodon/mastodon.dart';
 import 'mastodon/models.dart';
-import 'toot_details.dart';
-import 'widgets/toot_cell_widget.dart';
+import 'status_details.dart';
+import 'widgets/status_cell.dart';
 
 class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key, required this.title});
@@ -40,7 +40,7 @@ class _TimelinePageState extends State<TimelinePage> {
 
   void _handleTap(Status status) {
     Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return TootDetailsPage(toot: status);
+      return StatusDetailsPage(status: status);
     }));
   }
 
@@ -73,7 +73,7 @@ class _TimelinePageState extends State<TimelinePage> {
           onTap: () {
             _handleTap(_statusList![index]);
           },
-          child: TootCell(status: _statusList![index]),
+          child: StatusCell(status: _statusList![index]),
         );
       },
       itemCount: _statusList!.length,

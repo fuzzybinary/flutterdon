@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 
-class TootUtilities {
+class StatusUtilities {
   static TextStyle? _getStyleForTag(String? tag) {
     switch (tag) {
       case 'a':
@@ -46,19 +46,21 @@ class TootUtilities {
       if (textNode.parent?.classes.contains('ellipsis') == true) {
         string += '...';
       }
-      TapGestureRecognizer recognizer;
+      TapGestureRecognizer? recognizer;
       final link = linkElement?.attributes['href'];
-      recognizer = TapGestureRecognizer();
-      recognizer.onTap = () {
-        print(link);
-      };
+      if (link != null) {
+        recognizer = TapGestureRecognizer();
+        recognizer.onTap = () {
+          print(link);
+        };
+      }
       return TextSpan(text: string, recognizer: recognizer);
     }
 
     return null;
   }
 
-  static TextSpan createTextSpansForTootHTML(
+  static TextSpan createTextSpansForStatusHTML(
       BuildContext context, String tree) {
     final dom = parseFragment(tree);
     var currentSpan = TextSpan(

@@ -1,5 +1,3 @@
-library mastodon;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -9,9 +7,8 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'client_info.dart';
 import 'models.dart';
-
-part 'client_info.dart';
 
 const String clientName = 'flutterdon';
 const int redirectPort = 8553;

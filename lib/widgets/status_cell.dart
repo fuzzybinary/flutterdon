@@ -1,31 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../mastodon/models.dart';
-import '../utilities/toot_utilities.dart';
+import '../utilities/status_utilities.dart';
 
-class TootCell extends StatefulWidget {
-  const TootCell({super.key, required this.status});
-
+class StatusCell extends StatelessWidget {
+  final bool isFirst;
+  final bool isLast;
   final Status status;
 
-  @override
-  _TootCellState createState() => _TootCellState();
-}
+  const StatusCell({
+    super.key,
+    required this.status,
+    this.isFirst = true,
+    this.isLast = true,
+  });
 
-class _TootCellState extends State<TootCell> {
   RichText _createTextTree(BuildContext context, String status) {
     return RichText(
-      text: TootUtilities.createTextSpansForTootHTML(context, status),
+      text: StatusUtilities.createTextSpansForStatusHTML(context, status),
     );
   }
 
-  Widget _actionBar() {
+  Widget _actionBar(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
             padding: const EdgeInsets.all(10.0),
-            child: _createTextTree(context, widget.status.content)),
+            child: _createTextTree(context, status.content)),
         SizedBox(
           height: 30.0,
           child: Row(
@@ -52,7 +54,7 @@ class _TootCellState extends State<TootCell> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      key: PageStorageKey<Status>(widget.status),
+      key: PageStorageKey<Status>(status),
       decoration: BoxDecoration(
         border: Border.all(
           color: Colors.black,
@@ -62,29 +64,29 @@ class _TootCellState extends State<TootCell> {
         padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
         child: IntrinsicHeight(
           child: Row(
-            children: <Widget>[
+            children: [
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Container(
                     height: 10.0,
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                    ),
+                    decoration:
+                        !isFirst ? BoxDecoration(border: Border.all()) : null,
                   ),
                   Image.network(
-                    widget.status.account.avatarStatic,
+                    status.account.avatarStatic,
                     width: 50.0,
                     height: 50.0,
                   ),
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(border: Border.all()),
+                      decoration:
+                          !isLast ? BoxDecoration(border: Border.all()) : null,
                     ),
                   )
                 ],
               ),
-              Expanded(child: _actionBar())
+              Expanded(child: _actionBar(context))
             ],
           ),
         ),
