@@ -47,7 +47,7 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _gotoTimeline() {
-    GoRouter.of(context).replace('/timeline');
+    GoRouter.of(context).replace('/home');
   }
 
   @override

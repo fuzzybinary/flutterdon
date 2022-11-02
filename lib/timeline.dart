@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'mastodon/mastodon_api.dart';
+import 'mastodon/mastodon_status_service.dart';
 import 'mastodon/models.dart';
-import 'status_details.dart';
 import 'widgets/status_cell.dart';
 
 class TimelinePage extends StatefulWidget {
@@ -19,13 +19,14 @@ class TimelinePage extends StatefulWidget {
 }
 
 class _TimelinePageState extends State<TimelinePage> {
-  List<Status>? _statusList;
+  late MastodonStatusService statusService;
 
   @override
   void initState() {
     super.initState();
 
-    _loadTimeline();
+    //_loadTimeline();
+    statusService = Provider.of<MastodonStatusService>(context, listen: false);
   }
 
   Future<void> _logout() async {
@@ -34,17 +35,15 @@ class _TimelinePageState extends State<TimelinePage> {
     GoRouter.of(context).replace('/login');
   }
 
-  Future _loadTimeline() async {
-    final api = Provider.of<MastodonApi>(context, listen: false);
-    _statusList = await api.getTimeline();
+  // Future _loadTimeline() async {
+  //   final api = Provider.of<MastodonApi>(context, listen: false);
+  //   _statusList = await api.getTimeline();
 
-    setState(() => {});
-  }
+  //   setState(() => {});
+  // }
 
   void _handleTap(Status status) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) {
-      return StatusDetailsPage(status: status);
-    }));
+    GoRouter.of(context).push('/home/status/${status.id}');
   }
 
   @override
@@ -65,21 +64,29 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   _buildBody() {
-    if (_statusList == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return ListView.builder(
-      itemBuilder: (BuildContext buildContext, int index) {
-        return GestureDetector(
-          onTap: () {
-            _handleTap(_statusList![index]);
+    return StreamBuilder<List<Status>>(
+      stream: statusService.timelineStream(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Text('No data yet.');
+        }
+        final data = snapshot.data!;
+        return ListView.builder(
+          itemBuilder: (BuildContext buildContext, int index) {
+            final item = data[index];
+            return GestureDetector(
+              onTap: () {
+                _handleTap(item);
+              },
+              child: StatusCell(
+                key: Key(item.id),
+                status: item,
+              ),
+            );
           },
-          child: StatusCell(status: _statusList![index]),
+          itemCount: snapshot.data!.length,
         );
       },
-      itemCount: _statusList!.length,
     );
   }
 }

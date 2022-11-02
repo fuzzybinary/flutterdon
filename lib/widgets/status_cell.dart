@@ -29,23 +29,38 @@ class StatusCell extends StatelessWidget {
   }
 
   Widget _actionBar(BuildContext context) {
+    final themeData = Theme.of(context);
     return SizedBox(
-      height: 30.0,
-      child: Row(
-        children: <Widget>[
-          TextButton(
-            child: const Text('Reply'),
-            onPressed: () {},
-          ),
-          TextButton(
-            child: const Text('RT'),
-            onPressed: () {},
-          ),
-          TextButton(
-            child: const Text('Fav'),
-            onPressed: () {},
-          )
-        ],
+      height: 40.0,
+      child: Theme(
+        data: themeData.copyWith(
+          iconTheme: const IconThemeData(size: 22),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.reply),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.replay),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.star),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.more_horiz),
+              onPressed: () {},
+            ),
+          ],
+        ),
       ),
     );
   }

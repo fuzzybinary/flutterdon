@@ -40,8 +40,14 @@ class MastodonApi {
     await _clientInfo.saveToSharedPreferences(sp);
   }
 
-  Future<List<Status>> getTimeline() async {
-    final response = await _performRequest('/api/v1/timelines/home');
+  Future<List<Status>> getTimeline({String? minId, String? maxId}) async {
+    final response = await _performRequest(
+      '/api/v1/timelines/home',
+      queryParams: {
+        if (minId != null) 'min_id': minId,
+        if (maxId != null) 'max_id': maxId,
+      },
+    );
     final statusListJson = json.decode(response.body);
     final statusList = <Status>[];
     for (var statusJson in statusListJson) {
@@ -49,6 +55,12 @@ class MastodonApi {
       statusList.add(status);
     }
     return statusList;
+  }
+
+  Future<Status> getStatus(String id) async {
+    final response = await _performRequest('/api/v1/statuses/$id');
+    final statusJson = json.decode(response.body);
+    return Status.fromJson(statusJson);
   }
 
   Future<Context> getContext(Status status) async {
@@ -136,8 +148,16 @@ class MastodonApi {
     return Account.fromJson(decoded);
   }
 
-  Future<Response> _performRequest(String path) async {
-    final uri = Uri(scheme: 'https', host: _clientInfo.instanceUrl, path: path);
+  Future<Response> _performRequest(
+    String path, {
+    Map<String, Object> queryParams = const {},
+  }) async {
+    final uri = Uri(
+      scheme: 'https',
+      host: _clientInfo.instanceUrl,
+      path: path,
+      queryParameters: queryParams,
+    );
     final response = await _httpClient.get(uri,
         headers: {'Authorization': 'Bearer ${_clientInfo.accessToken}'});
     if (response.statusCode < 200 || response.statusCode >= 300) {

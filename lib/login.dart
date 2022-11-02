@@ -35,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       await instanceManager.loginToInstance(_textEditingController.text);
-      GoRouter.of(context).replace('/timeline');
+      GoRouter.of(context).replace('/home');
     } catch (exception) {
       setState(() {
         _loading = false;

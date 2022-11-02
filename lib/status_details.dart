@@ -3,66 +3,112 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon_api.dart';
+import 'mastodon/mastodon_status_service.dart';
 import 'mastodon/models.dart';
 import 'widgets/status_cell.dart';
 
 class StatusDetailsPage extends StatelessWidget {
-  final Status status;
+  final String statusId;
 
-  const StatusDetailsPage({super.key, required this.status});
+  const StatusDetailsPage({super.key, required this.statusId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Status')),
-      body: _InnerStatusDetailsPage(status: status),
+      body: _InnerStatusDetailsPage(statusId: statusId),
     );
   }
 }
 
 class _InnerStatusDetailsPage extends StatefulWidget {
-  final Status status;
+  final String statusId;
 
-  const _InnerStatusDetailsPage({required this.status});
+  const _InnerStatusDetailsPage({required this.statusId});
 
   @override
   _StatusDetailsState createState() => _StatusDetailsState();
 }
 
+enum _StatusLoadingState {
+  statusLoading,
+  contextLoading,
+  done,
+}
+
 class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
-  int rootIndex = 0;
-  bool loading = false;
+  late MastodonStatusService statusService;
+  int statusIndex = 0;
+  _StatusLoadingState _loadingState = _StatusLoadingState.statusLoading;
+  Status? status;
   Context? statusContext;
 
   Future<void> _loadContext() async {
-    setState(() {
-      loading = true;
-    });
-
     try {
-      final api = Provider.of<MastodonApi>(context, listen: false);
-      statusContext = await api.getContext(widget.status);
+      setState(() {
+        _loadingState = _StatusLoadingState.statusLoading;
+      });
+      status = await statusService.fetchStatus(widget.statusId);
+
+      setState(() {
+        _loadingState = _StatusLoadingState.contextLoading;
+      });
+
+      statusContext = await statusService.fetchStatusContext(status!);
+
+      setState(() {
+        _loadingState = _StatusLoadingState.done;
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Error loading status: $e'),
       ));
     }
-
-    setState(() {
-      loading = false;
-    });
   }
 
   @override
   void initState() {
     super.initState();
 
+    statusService = Provider.of<MastodonStatusService>(context, listen: false);
     _loadContext();
   }
 
   @override
   Widget build(BuildContext context) {
+    switch (_loadingState) {
+      case _StatusLoadingState.statusLoading:
+        return _fullPageLoading();
+      case _StatusLoadingState.contextLoading:
+        return _statusLoadingContext(status!);
+      case _StatusLoadingState.done:
+        return _fullyLoaded();
+    }
+  }
+
+  Widget _fullPageLoading() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  Widget _statusLoadingContext(Status status) {
+    return ListView.builder(
+      key: const Key('status_context_key'),
+      itemCount: 2,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return StatusCell(key: Key(status.id), status: status);
+        } else {
+          return Container(
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _fullyLoaded() {
     var itemCount = 1;
     if (statusContext != null) {
       itemCount = statusContext!.ancestors.length +
@@ -70,9 +116,10 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
           1;
     }
     return ListView.builder(
+      key: const Key('status_context_key'),
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        var status = widget.status;
+        var status = this.status!;
         if (statusContext != null) {
           if (index < statusContext!.ancestors.length) {
             status = statusContext!.ancestors[index];

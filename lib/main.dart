@@ -6,7 +6,9 @@ import 'package:window_manager/window_manager.dart';
 import 'login.dart';
 import 'mastodon/mastodon_api.dart';
 import 'mastodon/mastodon_instance_manager.dart';
+import 'mastodon/mastodon_status_service.dart';
 import 'splash.dart';
+import 'status_details.dart';
 import 'timeline.dart';
 import 'utilities/platform_utils.dart';
 
@@ -39,9 +41,15 @@ class MyApp extends StatelessWidget {
           const LoginPage(title: 'Select Mastodon Instance'),
     ),
     GoRoute(
-      path: '/timeline',
-      builder: (context, state) => const TimelinePage(title: 'Timeline'),
-    ),
+        path: '/home',
+        builder: (context, state) => const TimelinePage(title: 'Timeline'),
+        routes: [
+          GoRoute(
+            path: 'status/:id',
+            builder: (context, state) =>
+                StatusDetailsPage(statusId: state.params['id']!),
+          )
+        ]),
   ]);
 
   MyApp({super.key});
@@ -56,6 +64,9 @@ class MyApp extends StatelessWidget {
         ),
         ProxyProvider<MastodonInstanceManager, MastodonApi?>(
           update: (_, instanceManager, __) => instanceManager.currentApi,
+        ),
+        ProxyProvider<MastodonApi, MastodonStatusService?>(
+          update: (_, mastodonApi, __) => MastodonStatusService(mastodonApi),
         )
       ],
       child: MaterialApp.router(
@@ -64,6 +75,10 @@ class MyApp extends StatelessWidget {
         title: 'Flutterdon',
         theme: ThemeData(
           primarySwatch: Colors.deepPurple,
+          appBarTheme: const AppBarTheme(
+            color: Colors.lightBlue,
+          ),
+          useMaterial3: true,
         ),
       ),
     );
