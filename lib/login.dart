@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon.dart';
+import 'mastodon/mastodon_instance_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});
@@ -28,10 +30,12 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future _login() async {
-    var mastodonClient = MastodonApi(_textEditingController.text);
+    final instanceManager =
+        Provider.of<MastodonInstanceManager>(context, listen: false);
+
     try {
-      await mastodonClient.login();
-      Navigator.of(context).pushReplacementNamed('/timeline');
+      await instanceManager.loginToInstance(_textEditingController.text);
+      GoRouter.of(context).replace('/timeline');
     } catch (exception) {
       setState(() {
         _loading = false;

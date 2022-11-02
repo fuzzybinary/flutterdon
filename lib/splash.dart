@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon.dart';
+import 'mastodon/mastodon_instance_manager.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key, required this.title});
@@ -18,20 +21,20 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
 
-    _checkExistingInstance();
+    SchedulerBinding.instance
+        .addPostFrameCallback((_) => _checkExistingInstance());
   }
 
   Future _checkExistingInstance() async {
-    final mim = MastodonInstanceManager.instance();
+    final mim = Provider.of<MastodonInstanceManager>(context, listen: false);
     final instanceList = await mim.getRegisteredInstances();
     if (instanceList == null) {
       _gotoLogin();
     } else {
       // For now, only care about the first instance:
       final instanceName = instanceList.first;
-      final client = MastodonApi(instanceName);
       try {
-        await client.login();
+        await mim.loginToInstance(instanceName);
         _gotoTimeline();
       } catch (e) {
         _gotoLogin();
@@ -40,11 +43,11 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   void _gotoLogin() {
-    Navigator.of(context).pushReplacementNamed('/login');
+    GoRouter.of(context).replace('/login');
   }
 
   void _gotoTimeline() {
-    Navigator.of(context).pushReplacementNamed('/timeline');
+    GoRouter.of(context).replace('/timeline');
   }
 
   @override

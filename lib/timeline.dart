@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon.dart';
+import 'mastodon/mastodon_api.dart';
 import 'mastodon/models.dart';
 import 'status_details.dart';
 import 'widgets/status_cell.dart';
@@ -27,13 +29,14 @@ class _TimelinePageState extends State<TimelinePage> {
   }
 
   Future<void> _logout() async {
-    await MastodonInstanceManager.instance().currentApi?.logout();
-    Navigator.of(context).pushReplacementNamed('/login');
+    final api = Provider.of<MastodonApi>(context, listen: false);
+    await api.logout();
+    GoRouter.of(context).replace('/login');
   }
 
   Future _loadTimeline() async {
-    final mim = MastodonInstanceManager.instance();
-    _statusList = await mim.currentApi?.getTimeline();
+    final api = Provider.of<MastodonApi>(context, listen: false);
+    _statusList = await api.getTimeline();
 
     setState(() => {});
   }

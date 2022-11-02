@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../utilities/platform_utils.dart';
 import 'client_info.dart';
 import 'models.dart';
 
@@ -14,71 +14,30 @@ const String clientName = 'flutterdon';
 const int redirectPort = 8553;
 const String redirectUrl = 'http://localhost:$redirectPort/code';
 
-class MastodonInstanceManager {
-  static const String _instanceListKey = 'flutterdon:instance_list';
-
-  // TODO: Don't like holding the current API here but I need to look into
-  // how do to it better.
-  MastodonApi? currentApi;
-
-  // TODO: Investigate better ways to pass the current MastodonAPI to
-  // various pages / switching instances.
-  static MastodonInstanceManager? _instance;
-  static MastodonInstanceManager instance() {
-    _instance ??= MastodonInstanceManager._();
-
-    return _instance!;
-  }
-
-  MastodonInstanceManager._();
-
-  Future<List<String>?> getRegisteredInstances() async {
-    final sp = await SharedPreferences.getInstance();
-    return sp.getStringList(_instanceListKey);
-  }
-
-  Future addAuthorizedInstance(ClientInfo info) async {
-    final sp = await SharedPreferences.getInstance();
-    var currentList = sp.getStringList(_instanceListKey);
-    if (currentList == null) {
-      currentList = [];
-    } else {
-      currentList = List<String>.from(currentList);
-    }
-    if (!currentList.contains(info.instanceName)) {
-      currentList.add(info.instanceName);
-      sp.setStringList(_instanceListKey, currentList);
-    }
-  }
-}
-
 class MastodonApi {
+  final ClientInfo _clientInfo;
   final Client _httpClient;
-  final String _instanceUrl;
-  ClientInfo? _clientInfo;
+
   Account? _account;
 
-  MastodonApi(this._instanceUrl) : _httpClient = Client();
+  MastodonApi(this._clientInfo) : _httpClient = Client();
 
-  Future login() async {
-    final sp = await SharedPreferences.getInstance();
-    _clientInfo = ClientInfo.fromSharedPreferences(sp, _instanceUrl);
-    _clientInfo ??= await _registerApp(sp);
-
-    if (_clientInfo!.accessToken == null) {
+  Future<void> login() async {
+    if (_clientInfo.accessToken == null) {
       final refreshToken = await _authorizeApp();
-      _clientInfo!.accessToken = await _getAccessToken(refreshToken);
-      await _clientInfo!.saveToSharedPreferences(sp);
+      _clientInfo.accessToken = await _getAccessToken(refreshToken);
+      final sp = await SharedPreferences.getInstance();
+      await _clientInfo.saveToSharedPreferences(sp);
     }
 
     _account = await _verifyCredentials();
-    MastodonInstanceManager.instance().addAuthorizedInstance(_clientInfo!);
-    MastodonInstanceManager.instance().currentApi = this;
   }
 
-  Future logout() async {
+  Future<void> logout() async {
     final sp = await SharedPreferences.getInstance();
-    await _clientInfo?.clearFromSharedPreferences(sp);
+    _clientInfo.accessToken = null;
+    // Don't delete on logout, just remove the access token
+    await _clientInfo.saveToSharedPreferences(sp);
   }
 
   Future<List<Status>> getTimeline() async {
@@ -100,39 +59,16 @@ class MastodonApi {
     return context;
   }
 
-  Future<ClientInfo> _registerApp(SharedPreferences sp) async {
-    final url = Uri.parse('https://$_instanceUrl/api/v1/apps');
-    final body = {
-      'client_name': clientName,
-      'redirect_uris': redirectUrl,
-      'scopes': 'read write follow'
-    };
-
-    var response = await _httpClient.post(url, body: body);
-    if (response.statusCode < 200 && response.statusCode >= 300) {
-      throw Exception('Error registering app with mastodon instance: ');
-    }
-
-    final jsonResponse = json.decode(response.body);
-    final regResponse = RegisterResponse.fromJson(jsonResponse);
-
-    var clientInfo = ClientInfo(
-        _instanceUrl, regResponse.clientId, regResponse.clientSecret);
-    await clientInfo.saveToSharedPreferences(sp);
-
-    return clientInfo;
-  }
-
   Future<String> _authorizeApp() async {
     final uri = Uri(
       scheme: 'https',
-      host: _instanceUrl,
+      host: _clientInfo.instanceUrl,
       path: 'oauth/authorize',
       queryParameters: {
         'scope': 'read write follow',
         'response_type': 'code',
         'redirect_uri': redirectUrl,
-        'client_id': _clientInfo!.clientId
+        'client_id': _clientInfo.clientId
       },
     );
 
@@ -149,7 +85,7 @@ class MastodonApi {
         ..headers.set('Content-Type', ContentType.html.mimeType)
         ..write(html);
       await request.response.close();
-      if (!PlatformUtils.isDesktopPlatform) {
+      if (!PlatformUtils.isDesktop) {
         await closeInAppWebView();
       }
       requestCompleter.complete();
@@ -170,11 +106,11 @@ class MastodonApi {
   Future<String> _getAccessToken(String refreshToken) async {
     final uri = Uri(
       scheme: 'https',
-      host: _instanceUrl,
+      host: _clientInfo.instanceUrl,
       path: '/oauth/token',
       queryParameters: {
-        'client_id': _clientInfo!.clientId,
-        'client_secret': _clientInfo!.clientSecret,
+        'client_id': _clientInfo.clientId,
+        'client_secret': _clientInfo.clientSecret,
         'grant_type': 'authorization_code',
         'code': refreshToken,
         'redirect_uri': redirectUrl
@@ -201,20 +137,13 @@ class MastodonApi {
   }
 
   Future<Response> _performRequest(String path) async {
-    final uri = Uri(scheme: 'https', host: _instanceUrl, path: path);
+    final uri = Uri(scheme: 'https', host: _clientInfo.instanceUrl, path: path);
     final response = await _httpClient.get(uri,
-        headers: {'Authorization': 'Bearer ${_clientInfo!.accessToken}'});
+        headers: {'Authorization': 'Bearer ${_clientInfo.accessToken}'});
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Couldn't verify credentials: ");
     }
 
     return response;
-  }
-}
-
-class PlatformUtils {
-  static bool get isDesktopPlatform {
-    return !kIsWeb &&
-        (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
   }
 }

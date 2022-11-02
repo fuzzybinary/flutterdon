@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon.dart';
+import 'mastodon/mastodon_api.dart';
 import 'mastodon/models.dart';
 import 'widgets/status_cell.dart';
 
@@ -40,9 +41,8 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
     });
 
     try {
-      statusContext = await MastodonInstanceManager.instance()
-          .currentApi
-          ?.getContext(widget.status);
+      final api = Provider.of<MastodonApi>(context, listen: false);
+      statusContext = await api.getContext(widget.status);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Error loading status: $e'),
