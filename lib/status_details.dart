@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cancellation_token_http/http.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,9 @@ enum _StatusLoadingState {
 class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
   late MastodonStatusService statusService;
   int statusIndex = 0;
+
   _StatusLoadingState _loadingState = _StatusLoadingState.statusLoading;
+  CancellationToken? _cancellationToken;
   Status? status;
   Context? statusContext;
 
@@ -48,17 +51,28 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
       setState(() {
         _loadingState = _StatusLoadingState.statusLoading;
       });
-      status = await statusService.fetchStatus(widget.statusId);
+      _cancellationToken = CancellationToken();
+      status = await statusService.fetchStatus(
+        widget.statusId,
+        cancellationToken: _cancellationToken,
+      );
 
       setState(() {
         _loadingState = _StatusLoadingState.contextLoading;
       });
 
-      statusContext = await statusService.fetchStatusContext(status!);
+      statusContext = await statusService.fetchStatusContext(
+        status!,
+        cancellationToken: _cancellationToken,
+      );
 
       setState(() {
         _loadingState = _StatusLoadingState.done;
       });
+
+      _cancellationToken = null;
+    } on CancelledException {
+      // Nothing to do
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Error loading status: $e'),
@@ -72,6 +86,13 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
 
     statusService = Provider.of<MastodonStatusService>(context, listen: false);
     _loadContext();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _cancellationToken?.cancel();
   }
 
   @override
@@ -100,9 +121,7 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
         if (index == 0) {
           return StatusCell(key: Key(status.id), status: status);
         } else {
-          return Container(
-            child: const Center(child: CircularProgressIndicator()),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

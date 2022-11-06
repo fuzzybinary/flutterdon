@@ -1,6 +1,8 @@
 // The bridge between all the different ways to fetch and store data
 import 'dart:async';
 
+import 'package:cancellation_token_http/http.dart';
+
 import 'mastodon_api.dart';
 import 'models.dart';
 
@@ -23,15 +25,23 @@ class MastodonStatusService {
     return timelineController.stream;
   }
 
-  Future<Status> fetchStatus(String id) async {
+  Future<Status> fetchStatus(String id,
+      {CancellationToken? cancellationToken}) async {
     var status = _statusMap[id];
-    status ??= await mastodonApi.getStatus(id);
+    status ??= await mastodonApi.getStatus(
+      id,
+      cancellationToken: cancellationToken,
+    );
     _statusMap[id] = status;
     return status;
   }
 
-  Future<Context> fetchStatusContext(Status status) async {
-    var context = await mastodonApi.getContext(status);
+  Future<Context> fetchStatusContext(Status status,
+      {CancellationToken? cancellationToken}) async {
+    var context = await mastodonApi.getContext(
+      status,
+      cancellationToken: cancellationToken,
+    );
     for (final s in context.ancestors) {
       _statusMap[s.id] = s;
     }

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart';
+import 'package:cancellation_token_http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,13 +40,18 @@ class MastodonApi {
     await _clientInfo.saveToSharedPreferences(sp);
   }
 
-  Future<List<Status>> getTimeline({String? minId, String? maxId}) async {
+  Future<List<Status>> getTimeline({
+    String? minId,
+    String? maxId,
+    CancellationToken? cancellationToken,
+  }) async {
     final response = await _performRequest(
       '/api/v1/timelines/home',
       queryParams: {
         if (minId != null) 'min_id': minId,
         if (maxId != null) 'max_id': maxId,
       },
+      cancellationToken: cancellationToken,
     );
     final statusListJson = json.decode(response.body);
     final statusList = <Status>[];
@@ -57,13 +62,15 @@ class MastodonApi {
     return statusList;
   }
 
-  Future<Status> getStatus(String id) async {
+  Future<Status> getStatus(String id,
+      {CancellationToken? cancellationToken}) async {
     final response = await _performRequest('/api/v1/statuses/$id');
     final statusJson = json.decode(response.body);
     return Status.fromJson(statusJson);
   }
 
-  Future<Context> getContext(Status status) async {
+  Future<Context> getContext(Status status,
+      {CancellationToken? cancellationToken}) async {
     final response =
         await _performRequest('/api/v1/statuses/${status.id}/context');
     final contextJson = json.decode(response.body);
@@ -151,6 +158,7 @@ class MastodonApi {
   Future<Response> _performRequest(
     String path, {
     Map<String, Object> queryParams = const {},
+    CancellationToken? cancellationToken,
   }) async {
     final uri = Uri(
       scheme: 'https',
@@ -158,8 +166,11 @@ class MastodonApi {
       path: path,
       queryParameters: queryParams,
     );
-    final response = await _httpClient.get(uri,
-        headers: {'Authorization': 'Bearer ${_clientInfo.accessToken}'});
+    final response = await _httpClient.get(
+      uri,
+      headers: {'Authorization': 'Bearer ${_clientInfo.accessToken}'},
+      cancellationToken: cancellationToken,
+    );
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception("Couldn't verify credentials: ");
     }

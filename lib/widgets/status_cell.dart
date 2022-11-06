@@ -65,6 +65,95 @@ class StatusCell extends StatelessWidget {
     );
   }
 
+  Widget _mediaAttachments(BuildContext context) {
+    Widget _imageAttachment(Attachment attachment) {
+      return Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+              width: 2,
+              color: Colors.black54,
+            ),
+            borderRadius: BorderRadius.circular(5)),
+        margin: const EdgeInsets.all(2),
+        child: Image(
+          image: NetworkImage(attachment.previewUrl),
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    final first = status.mediaAttachments.first;
+    if (first.type == AttachmentType.image) {
+      Widget child;
+      switch (status.mediaAttachments.length) {
+        case 1:
+          child = _imageAttachment(first);
+          break;
+        case 2:
+          child = Row(
+            children: [
+              for (final attachment in status.mediaAttachments)
+                Container(
+                    padding: const EdgeInsets.all(2),
+                    child: _imageAttachment(attachment)),
+            ],
+          );
+          break;
+        case 3:
+        case 4:
+          child = Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Expanded(
+                flex: 1,
+                child: Row(
+                  children: [
+                    for (final attachment
+                        in status.mediaAttachments.sublist(0, 2))
+                      Expanded(flex: 1, child: _imageAttachment(attachment)),
+                  ],
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Row(
+                  children: [
+                    for (final attachment in status.mediaAttachments.sublist(2))
+                      Expanded(flex: 1, child: _imageAttachment(attachment)),
+                  ],
+                ),
+              )
+            ],
+          );
+          break;
+        default:
+          child = Container();
+      }
+
+      return ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 200,
+        ),
+        child: child,
+      );
+
+      // return Container(
+      //     margin: const EdgeInsets.only(top: 8, bottom: 8),
+      //     decoration: BoxDecoration(
+      //       borderRadius: BorderRadius.circular(8),
+      //       border: Border.all(color: Colors.blueAccent),
+      //     ),
+      //     height: 200,
+      //     width: double.infinity,
+      //     child: child);
+    }
+
+    return Container(
+      child: const Text('media'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -129,6 +218,8 @@ class StatusCell extends StatelessWidget {
                         ],
                       ),
                       _statusContent(context),
+                      if (status.mediaAttachments.isNotEmpty)
+                        _mediaAttachments(context),
                       _actionBar(context),
                     ],
                   ),
