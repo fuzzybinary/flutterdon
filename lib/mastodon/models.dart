@@ -75,11 +75,13 @@ class Status {
   final String? inReplyToAccountId;
   final Status? reblog;
   final String content;
-  final String createdAt;
+  final DateTime createdAt;
 
   final int reblogsCount;
   final int favouritesCount;
   final int repliesCount;
+
+  final List<Attachment> mediaAttachments;
 
   final bool? reblogged;
   final bool? favourited;
@@ -102,6 +104,7 @@ class Status {
     required this.reblogsCount,
     required this.favouritesCount,
     required this.repliesCount,
+    required this.mediaAttachments,
     required this.reblogged,
     required this.favourited,
     required this.muted,
@@ -128,4 +131,42 @@ class Context {
   factory Context.fromJson(Map<String, dynamic> json) =>
       _$ContextFromJson(json);
   Map<String, dynamic> toJson() => _$ContextToJson(this);
+}
+
+enum AttachmentType {
+  unknown,
+  image,
+  gifv,
+  video,
+  audio,
+}
+
+@JsonSerializable(fieldRename: FieldRename.snake)
+class Attachment {
+  final String id;
+  final AttachmentType type;
+  final String url;
+  final String previewUrl;
+
+  final String? remoteUrl;
+  final String? hash;
+  final String? description;
+  final String? blurHash;
+  final String? textUrl;
+
+  Attachment({
+    required this.id,
+    required this.type,
+    required this.url,
+    required this.previewUrl,
+    required this.remoteUrl,
+    required this.hash,
+    required this.description,
+    required this.blurHash,
+    required this.textUrl,
+  });
+
+  factory Attachment.fromJson(Map<String, dynamic> json) =>
+      _$AttachmentFromJson(json);
+  Map<String, dynamic> toJson() => _$AttachmentToJson(this);
 }

@@ -67,6 +67,13 @@ class StatusCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dimmedTextStyle = TextStyle(
+      color: theme.textTheme.bodyLarge!.color!.withAlpha(80),
+    );
+
+    final since = DateTime.now().difference(status.createdAt);
+
     return Container(
       key: PageStorageKey<Status>(status),
       decoration: BoxDecoration(
@@ -82,10 +89,12 @@ class StatusCell extends StatelessWidget {
               Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Container(
-                    height: 10.0,
-                    decoration:
-                        !isFirst ? BoxDecoration(border: Border.all()) : null,
+                  SizedBox(
+                    height: 10,
+                    child: Container(
+                      decoration:
+                          !isFirst ? BoxDecoration(border: Border.all()) : null,
+                    ),
                   ),
                   PosterAvatar(status: status),
                   Expanded(
@@ -97,15 +106,32 @@ class StatusCell extends StatelessWidget {
                 ],
               ),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: _statusContent(context),
-                    ),
-                    _actionBar(context),
-                  ],
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            status.account.displayName,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            '@${status.account.acct}',
+                            style: dimmedTextStyle,
+                          ),
+                          Expanded(child: Container()),
+                          Text(since.agoString(), style: dimmedTextStyle)
+                        ],
+                      ),
+                      _statusContent(context),
+                      _actionBar(context),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -113,5 +139,17 @@ class StatusCell extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension DurationString on Duration {
+  String agoString() {
+    if (inDays > 0) {
+      return '${inDays}d';
+    } else if (inHours > 0) {
+      return '${inHours}h';
+    }
+
+    return '${inMinutes}m';
   }
 }

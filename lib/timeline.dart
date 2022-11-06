@@ -43,7 +43,11 @@ class _TimelinePageState extends State<TimelinePage> {
   // }
 
   void _handleTap(Status status) {
-    GoRouter.of(context).push('/home/status/${status.id}');
+    var statusId = status.id;
+    if (status.reblog != null) {
+      statusId = status.reblog!.id;
+    }
+    GoRouter.of(context).push('/home/status/$statusId');
   }
 
   @override
