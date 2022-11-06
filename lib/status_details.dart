@@ -127,6 +127,27 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
     );
   }
 
+  // This gets the status at the given index, but correctly checks
+  // bounds and returns null if send an invalid index
+  Status? _statusAtIndex(int index) {
+    if (index < 0) return null;
+    if (statusContext != null) {
+      if (index < statusContext!.ancestors.length) {
+        return statusContext!.ancestors[index];
+      } else {
+        var descendantIndex = index - (statusContext!.ancestors.length + 1);
+        if (descendantIndex < 0) {
+          return status;
+        } else if (descendantIndex < statusContext!.descendants.length) {
+          return statusContext!.descendants[descendantIndex];
+        }
+      }
+    } else if (index == 0) {
+      return status;
+    }
+    return null;
+  }
+
   Widget _fullyLoaded() {
     var itemCount = 1;
     if (statusContext != null) {
@@ -138,22 +159,19 @@ class _StatusDetailsState extends State<_InnerStatusDetailsPage> {
       key: const Key('status_context_key'),
       itemCount: itemCount,
       itemBuilder: (context, index) {
-        var status = this.status!;
+        var status = _statusAtIndex(index)!;
+        var isFirst = true;
+        var isLast = true;
         if (statusContext != null) {
-          if (index < statusContext!.ancestors.length) {
-            status = statusContext!.ancestors[index];
-          } else {
-            var descendentIndex = index - (statusContext!.ancestors.length + 1);
-            if (descendentIndex >= 0 &&
-                descendentIndex < statusContext!.descendants.length) {
-              status = statusContext!.descendants[descendentIndex];
-            }
-          }
+          final previous = _statusAtIndex(index - 1);
+          final next = _statusAtIndex(index + 1);
+          isFirst = previous == null || status.inReplyToId != previous.id;
+          isLast = next == null || next.inReplyToId != status.id;
         }
         return StatusCell(
           status: status,
-          isFirst: index == 0,
-          isLast: index == (itemCount - 1),
+          isFirst: isFirst,
+          isLast: isLast,
         );
       },
     );

@@ -4,10 +4,12 @@ import '../mastodon/models.dart';
 
 class PosterAvatar extends StatelessWidget {
   final Status status;
+  final Status? parentReblog;
 
   const PosterAvatar({
     super.key,
     required this.status,
+    required this.parentReblog,
   });
 
   @override
@@ -16,9 +18,8 @@ class PosterAvatar extends StatelessWidget {
     String? secondaryPoster;
     var mainPosterSize = const Size(50, 50);
 
-    if (status.reblog != null) {
-      secondaryPoster = mainPoster;
-      mainPoster = status.reblog!.account.avatarStatic;
+    if (parentReblog != null) {
+      secondaryPoster = parentReblog!.account.avatarStatic;
       mainPosterSize = const Size(35, 35);
     }
 
@@ -37,7 +38,7 @@ class PosterAvatar extends StatelessWidget {
               ),
             ),
           ),
-          if (status.reblog != null)
+          if (parentReblog != null)
             Positioned(
               top: 20,
               left: 20,

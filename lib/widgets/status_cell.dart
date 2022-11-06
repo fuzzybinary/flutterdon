@@ -9,12 +9,15 @@ class StatusCell extends StatelessWidget {
   final bool isLast;
   final Status status;
 
-  const StatusCell({
+  Status? parentBoost;
+
+  StatusCell({
     super.key,
-    required this.status,
+    required Status status,
     this.isFirst = true,
     this.isLast = true,
-  });
+  })  : status = (status.reblog != null ? status.reblog! : status),
+        parentBoost = (status.reblog != null ? status : null);
 
   RichText _createTextTree(BuildContext context, String status) {
     return RichText(
@@ -172,61 +175,80 @@ class StatusCell extends StatelessWidget {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  SizedBox(
-                    height: 10,
-                    child: Container(
-                      decoration:
-                          !isFirst ? BoxDecoration(border: Border.all()) : null,
-                    ),
-                  ),
-                  PosterAvatar(status: status),
-                  Expanded(
-                    child: Container(
-                      decoration:
-                          !isLast ? BoxDecoration(border: Border.all()) : null,
-                    ),
-                  )
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            status.account.displayName,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            '@${status.account.acct}',
-                            style: dimmedTextStyle,
-                          ),
-                          Expanded(child: Container()),
-                          Text(since.agoString(), style: dimmedTextStyle)
-                        ],
-                      ),
-                      _statusContent(context),
-                      if (status.mediaAttachments.isNotEmpty)
-                        _mediaAttachments(context),
-                      _actionBar(context),
-                    ],
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (parentBoost != null)
+              Container(
+                padding: const EdgeInsets.only(left: 30),
+                child: Text(
+                  '🔁 ${parentBoost?.account.displayName} boosted',
+                  style: dimmedTextStyle,
                 ),
               ),
-            ],
-          ),
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 10,
+                        child: Container(
+                          decoration: !isFirst
+                              ? BoxDecoration(border: Border.all())
+                              : null,
+                        ),
+                      ),
+                      PosterAvatar(
+                        status: status,
+                        parentReblog: parentBoost,
+                      ),
+                      Expanded(
+                        child: Container(
+                          decoration: !isLast
+                              ? BoxDecoration(border: Border.all())
+                              : null,
+                        ),
+                      )
+                    ],
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                status.account.displayName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                '@${status.account.acct}',
+                                style: dimmedTextStyle,
+                              ),
+                              Expanded(child: Container()),
+                              Text(since.agoString(), style: dimmedTextStyle)
+                            ],
+                          ),
+                          _statusContent(context),
+                          if (status.mediaAttachments.isNotEmpty)
+                            _mediaAttachments(context),
+                          _actionBar(context),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
