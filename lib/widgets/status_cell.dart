@@ -72,11 +72,12 @@ class StatusCell extends StatelessWidget {
     Widget _imageAttachment(Attachment attachment) {
       return Container(
         decoration: BoxDecoration(
-            border: Border.all(
-              width: 2,
-              color: Colors.black54,
-            ),
-            borderRadius: BorderRadius.circular(5)),
+          border: Border.all(
+            width: 2,
+            color: Colors.black54,
+          ),
+          borderRadius: BorderRadius.circular(5),
+        ),
         margin: const EdgeInsets.all(2),
         child: Image(
           image: NetworkImage(attachment.previewUrl),
@@ -105,25 +106,23 @@ class StatusCell extends StatelessWidget {
         case 3:
         case 4:
           child = Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Expanded(
-                flex: 1,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final attachment
                         in status.mediaAttachments.sublist(0, 2))
-                      Expanded(flex: 1, child: _imageAttachment(attachment)),
+                      Expanded(child: _imageAttachment(attachment)),
                   ],
                 ),
               ),
               Expanded(
-                flex: 1,
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final attachment in status.mediaAttachments.sublist(2))
-                      Expanded(flex: 1, child: _imageAttachment(attachment)),
+                      Expanded(child: _imageAttachment(attachment)),
                   ],
                 ),
               )
@@ -136,20 +135,12 @@ class StatusCell extends StatelessWidget {
 
       return ConstrainedBox(
         constraints: const BoxConstraints(
+          minHeight: 200,
           maxHeight: 200,
+          maxWidth: 360,
         ),
         child: child,
       );
-
-      // return Container(
-      //     margin: const EdgeInsets.only(top: 8, bottom: 8),
-      //     decoration: BoxDecoration(
-      //       borderRadius: BorderRadius.circular(8),
-      //       border: Border.all(color: Colors.blueAccent),
-      //     ),
-      //     height: 200,
-      //     width: double.infinity,
-      //     child: child);
     }
 
     return Container(
@@ -182,7 +173,7 @@ class StatusCell extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.only(left: 30),
                 child: Text(
-                  '🔁 ${parentBoost?.account.displayName} boosted',
+                  '🔁 ${parentBoost?.account.nonEmptyDisplayName} boosted',
                   style: dimmedTextStyle,
                 ),
               ),
@@ -229,11 +220,13 @@ class StatusCell extends StatelessWidget {
                               const SizedBox(
                                 width: 10,
                               ),
-                              Text(
-                                '@${status.account.acct}',
-                                style: dimmedTextStyle,
+                              Expanded(
+                                child: Text(
+                                  '@${status.account.acct}',
+                                  style: dimmedTextStyle,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              Expanded(child: Container()),
                               Text(since.agoString(), style: dimmedTextStyle)
                             ],
                           ),
@@ -252,6 +245,15 @@ class StatusCell extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension AccountDisplayName on Account {
+  String get nonEmptyDisplayName {
+    if (displayName.isNotEmpty) {
+      return displayName;
+    }
+    return username;
   }
 }
 

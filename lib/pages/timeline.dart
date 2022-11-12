@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon_api.dart';
-import 'mastodon/mastodon_status_service.dart';
-import 'mastodon/models.dart';
-import 'widgets/status_cell.dart';
+import '../mastodon/mastodon_api.dart';
+import '../mastodon/mastodon_status_service.dart';
+import '../mastodon/models.dart';
+import '../widgets/status_cell.dart';
 
 class TimelinePage extends StatefulWidget {
   const TimelinePage({super.key, required this.title});

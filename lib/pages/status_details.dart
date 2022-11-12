@@ -4,9 +4,9 @@ import 'package:cancellation_token_http/http.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon_status_service.dart';
-import 'mastodon/models.dart';
-import 'widgets/status_cell.dart';
+import '../mastodon/mastodon_status_service.dart';
+import '../mastodon/models.dart';
+import '../widgets/status_cell.dart';
 
 class StatusDetailsPage extends StatelessWidget {
   final String statusId;

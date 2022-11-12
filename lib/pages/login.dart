@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon_instance_manager.dart';
+import '../mastodon/mastodon_instance_manager.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, required this.title});

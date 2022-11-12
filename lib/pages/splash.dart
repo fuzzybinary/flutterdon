@@ -5,7 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'mastodon/mastodon_instance_manager.dart';
+import '../mastodon/mastodon_instance_manager.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key, required this.title});

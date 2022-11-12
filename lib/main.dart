@@ -3,13 +3,14 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'login.dart';
 import 'mastodon/mastodon_api.dart';
 import 'mastodon/mastodon_instance_manager.dart';
 import 'mastodon/mastodon_status_service.dart';
-import 'splash.dart';
-import 'status_details.dart';
-import 'timeline.dart';
+import 'pages/login.dart';
+import 'pages/splash.dart';
+import 'pages/status_details.dart';
+import 'pages/timeline.dart';
+import 'theming/theme_data.dart';
 import 'utilities/platform_utils.dart';
 
 void main() async {
@@ -59,8 +60,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider(
+          create: (_) => FlutterdonThemeData(),
+        ),
         ChangeNotifierProvider(
-          create: (context) => MastodonInstanceManager(),
+          create: (_) => MastodonInstanceManager(),
         ),
         ProxyProvider<MastodonInstanceManager, MastodonApi?>(
           update: (_, instanceManager, __) => instanceManager.currentApi,
@@ -69,18 +73,16 @@ class MyApp extends StatelessWidget {
           update: (_, mastodonApi, __) => MastodonStatusService(mastodonApi),
         )
       ],
-      child: MaterialApp.router(
-        routeInformationParser: _router.routeInformationParser,
-        routerDelegate: _router.routerDelegate,
-        title: 'Flutterdon',
-        theme: ThemeData(
-          primarySwatch: Colors.deepPurple,
-          appBarTheme: const AppBarTheme(
-            color: Colors.lightBlue,
-          ),
-          useMaterial3: true,
-        ),
-      ),
+      child: Consumer<FlutterdonThemeData>(builder: (context, themeData, __) {
+        return MaterialApp.router(
+          routeInformationParser: _router.routeInformationParser,
+          routerDelegate: _router.routerDelegate,
+          title: 'Flutterdon',
+          darkTheme: themeData.darkTheme,
+          theme: themeData.lightTheme,
+          themeMode: ThemeMode.dark,
+        );
+      }),
     );
   }
 }
