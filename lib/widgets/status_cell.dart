@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../mastodon/models.dart';
 import '../utilities/status_utilities.dart';
+import 'attachment_grid.dart';
 import 'poster_avatar.dart';
 
 class StatusCell extends StatelessWidget {
@@ -68,86 +69,6 @@ class StatusCell extends StatelessWidget {
     );
   }
 
-  Widget _mediaAttachments(BuildContext context) {
-    Widget _imageAttachment(Attachment attachment) {
-      return Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            width: 2,
-            color: Colors.black54,
-          ),
-          borderRadius: BorderRadius.circular(5),
-        ),
-        margin: const EdgeInsets.all(2),
-        child: Image(
-          image: NetworkImage(attachment.previewUrl),
-          fit: BoxFit.cover,
-        ),
-      );
-    }
-
-    final first = status.mediaAttachments.first;
-    if (first.type == AttachmentType.image) {
-      Widget child;
-      switch (status.mediaAttachments.length) {
-        case 1:
-          child = _imageAttachment(first);
-          break;
-        case 2:
-          child = Row(
-            children: [
-              for (final attachment in status.mediaAttachments)
-                Container(
-                    padding: const EdgeInsets.all(2),
-                    child: _imageAttachment(attachment)),
-            ],
-          );
-          break;
-        case 3:
-        case 4:
-          child = Column(
-            children: [
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final attachment
-                        in status.mediaAttachments.sublist(0, 2))
-                      Expanded(child: _imageAttachment(attachment)),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final attachment in status.mediaAttachments.sublist(2))
-                      Expanded(child: _imageAttachment(attachment)),
-                  ],
-                ),
-              )
-            ],
-          );
-          break;
-        default:
-          child = Container();
-      }
-
-      return ConstrainedBox(
-        constraints: const BoxConstraints(
-          minHeight: 200,
-          maxHeight: 200,
-          maxWidth: 360,
-        ),
-        child: child,
-      );
-    }
-
-    return Container(
-      child: const Text('media'),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -171,7 +92,7 @@ class StatusCell extends StatelessWidget {
           children: [
             if (parentBoost != null)
               Container(
-                padding: const EdgeInsets.only(left: 30),
+                padding: const EdgeInsets.only(left: 30, top: 10),
                 child: Text(
                   '🔁 ${parentBoost?.account.nonEmptyDisplayName} boosted',
                   style: dimmedTextStyle,
@@ -232,7 +153,9 @@ class StatusCell extends StatelessWidget {
                           ),
                           _statusContent(context),
                           if (status.mediaAttachments.isNotEmpty)
-                            _mediaAttachments(context),
+                            AttachmentGrid(
+                              attachments: status.mediaAttachments,
+                            ),
                           _actionBar(context),
                         ],
                       ),

@@ -35,14 +35,7 @@ class _TimelinePageState extends State<TimelinePage> {
     GoRouter.of(context).replace('/login');
   }
 
-  // Future _loadTimeline() async {
-  //   final api = Provider.of<MastodonApi>(context, listen: false);
-  //   _statusList = await api.getTimeline();
-
-  //   setState(() => {});
-  // }
-
-  void _handleTap(Status status) {
+  void _handleStatusTap(Status status) {
     var statusId = status.id;
     if (status.reblog != null) {
       statusId = status.reblog!.id;
@@ -80,7 +73,7 @@ class _TimelinePageState extends State<TimelinePage> {
             final item = data[index];
             return GestureDetector(
               onTap: () {
-                _handleTap(item);
+                _handleStatusTap(item);
               },
               child: StatusCell(
                 key: Key(item.id),

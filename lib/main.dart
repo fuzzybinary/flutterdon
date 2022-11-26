@@ -42,15 +42,16 @@ class MyApp extends StatelessWidget {
           const LoginPage(title: 'Select Mastodon Instance'),
     ),
     GoRoute(
-        path: '/home',
-        builder: (context, state) => const TimelinePage(title: 'Timeline'),
-        routes: [
-          GoRoute(
-            path: 'status/:id',
-            builder: (context, state) =>
-                StatusDetailsPage(statusId: state.params['id']!),
-          )
-        ]),
+      path: '/home',
+      builder: (context, state) => const TimelinePage(title: 'Timeline'),
+      routes: [
+        GoRoute(
+          path: 'status/:id',
+          builder: (context, state) =>
+              StatusDetailsPage(statusId: state.params['id']!),
+        ),
+      ],
+    ),
   ]);
 
   MyApp({super.key});
